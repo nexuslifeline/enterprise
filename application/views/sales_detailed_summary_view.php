@@ -55,6 +55,10 @@
             text-align: right;
             font-weight: bolder;
         }
+
+        .numeriCol {
+            text-align: right;
+        }
     </style>
 
 </head>
@@ -116,9 +120,12 @@
                                                         <br />
                                                         <div class="tab-container tab-top tab-primary">
                                                             <ul class="nav nav-tabs">
-                                                                <li class="active"><a data-toggle="tab" href="#customers">Customers</a></li>
-                                                                <li><a data-toggle="tab" href="#vet_rep">Salesperson</a></li>
-                                                                <li><a data-toggle="tab" href="#per_product">Products</a></li>
+                                                                <li id="btn_customer" class="active">
+                                                                    <a data-toggle="tab" href="#customers">Customers</a>
+                                                                </li>
+                                                                <li id="btn_salesperson">
+                                                                    <a data-toggle="tab" href="#vet_rep">Salespersons</a>
+                                                                </li>
                                                             </ul>
                                                             <div class="tab-content">
                                                                 <div id="customers" class="tab-pane fade in active">
@@ -160,10 +167,39 @@
                                                                     </table>
                                                                 </div>
                                                                 <div id="vet_rep" class="tab-pane fade">
-                                                                    
-                                                                </div>
-                                                                <div id="products" class="tab-pane fade">
-                                                                    
+                                                                    <strong>Search Salesperson :</strong><br>
+                                                                    <select id="cbo_salesperson" class="form-control" style="width: 100%;">
+                                                                        <option value="all">[All Salesperson]</option>
+                                                                        <?php foreach($salespersons as $salesperson) { ?>
+                                                                            <option value="<?php echo $salesperson->salesperson_id; ?>"><?php echo $salesperson->salesperson_name; ?></option>
+                                                                        <?php } ?>
+                                                                    </select>
+                                                                    <button class="btn btn-primary pull-left" style="margin-right: 5px; margin-top: 10px; margin-bottom: 10px;" id="btn_print_salesperson_report" style="text-transform: none; font-family: Tahoma, Georgia, Serif; " data-toggle="modal" data-target="#salesInvoice" data-placement="left" title="Print" >
+                                                                    <i class="fa fa-print"></i> Print Report</button>
+                                                                    <button class="btn btn-success pull-left" id="btn_refresh" style="text-transform: none; font-family: Tahoma, Georgia, Serif; margin-top: 10px; margin-bottom: 10px;" data-toggle="modal" data-target="#salesInvoice" data-placement="left" title="Reload" >
+                                                                    <i class="fa fa-refresh"></i></button>
+                                                                    <table id="tbl_salespersons" style="margin-top: 10px;" class="custom-design table-striped" cellspacing="0" width="100%">
+                                                                        <thead class="">
+                                                                        <tr>
+                                                                            <th>Salesperson</th>
+                                                                            <th width="20%" style="text-align: right;">Total Invoice</th>
+                                                                        </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                        </tbody>
+
+                                                                        <tfoot>
+                                                                            <tr>
+                                                                                <td align="right" colspan="">Current Page Total : </td>
+                                                                                <td id="td_page_total_sp" align="right"></td>
+                                                                            </tr>
+                                                                            <tr>
+                                                                                <td align="right" colspan="">Grand Total : </td>
+                                                                                <td id="td_grand_total_sp" align="right"></td>
+                                                                            </tr>
+
+                                                                        </tfoot>
+                                                                    </table>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -222,18 +258,24 @@
 
 <script>
     $(document).ready(function(){
-        var _cboAccounts; var dt; var _cboCustomers;    
+        var _cboAccounts; var dt; var _cboCustomers; var _cboSalesperson;    
         var _date_from = $('input[name="date_from"]');
         var _date_to = $('input[name="date_to"]');
 
 
         var initializeControls=function(){
 
+            _cboSalesperson = $('#cbo_salesperson').select2({
+                placeholder: 'Please Select Salesperson',
+                allowClear: true
+            });
+
             _cboCustomers = $('#cbo_customers').select2({
                 placeholder: 'Please Select Customer',
                 allowClear: true
             });
 
+            _cboSalesperson.select2('val','all');
             _cboCustomers.select2('val', 'all');
 
             $('.date-picker').datepicker({
@@ -246,6 +288,7 @@
             });
 
             reloadList();
+            reloadSalespersonList();
 
             //createToolBarButton();
 
@@ -254,14 +297,31 @@
         }();
 
         var bindEventControls=function(){
+            $('#btn_print_salesperson_report').on('click', function(){
+                window.open('Sales_detailed_summary/transaction/summary-report-vet-rep?startDate='+_date_from.val()+'&endDate='+_date_to.val()+'&sp_id='+_cboSalesperson.val());
+            });
+
             $('.date-picker').on('change',function(){
                 dt.destroy();
+                reloadList();
+            });
+
+            $('#btn_salesperson').on('click', function(){
+                reloadSalespersonList();
+            });
+
+            $('#btn_customer').on('click', function(){
                 reloadList();
             });
 
             $(document).on('select2:select change',_cboCustomers,function(){
                 dt.destroy();
                 reloadList();
+            });
+
+            $(document).on('select2:select change',_cboSalesperson,function(){
+                dtSalesperson.destroy();
+                reloadSalespersonList();
             });
 
             $(document).on('click','#btn_print_customer_report',function(){
@@ -287,11 +347,77 @@
         //     $("div.toolbar").html(_btnPrint+"&nbsp;"+_btnRefresh);
         // };
 
-        function reloadList(){
+        function reloadSalespersonList(){
+            dtSalesperson=$('#tbl_salespersons').DataTable({
+                "dom": '<"toolbar">frtip',
+                "bLengthChange":false,
+                "bDestroy":true,
+                "bPaginate":false,
+                "ajax": {
+                    "url": "Sales_detailed_summary/transaction/per-salesperson-sales",
+                    "type": "GET",
+                    "bDestroy": true,
+                    "data": function ( d ) {
+                        return $.extend( {}, d, {
+                            "startDate":_date_from.val(),
+                            "endDate":_date_to.val(),
+                            "sp_id":_cboSalesperson.val()
+                        });
+                    }
+                },
+                "columns": [
+                    { targets:[0],data: "salesperson_name" },
+                    {
+                        className: "numeriCol",
+                        targets:[1],data:
+                        "total_amount_invoice",
+                        render: function(data){
+                            return '<b>'+accounting.formatNumber(data,4)+'</b>';
+                        }
+                    }
+                ],
+                "footerCallback": function ( row, data, start, end, display ) {
+                    var api = this.api(), data;
 
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function ( i ) {
+                        return typeof i === 'string' ?
+                        i.replace(/[\$,]/g, '')*1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    total = api
+                        .column( 1 )
+                        .data()
+                        .reduce( function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0 );
+
+                    // Total over this page
+                    pageTotal = api
+                        .column( 1, { page: 'current'} )
+                        .data()
+                        .reduce( function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0 );
+
+                     $('#td_page_total_sp').html('<b>'+accounting.formatNumber(pageTotal,4)+'</b>');
+                    $('#td_grand_total_sp').html('<b>'+accounting.formatNumber(total,4)+'</b>');
+
+
+
+                }
+
+            });
+        };
+
+        function reloadList(){
             dt=$('#tbl_account_subsidiary').DataTable({
                 "dom": '<"toolbar">frtip',
                 "bLengthChange":false,
+                "bDestroy":true,
                 "bPaginate":false,
                 "ajax": {
                     "url": "Sales_detailed_summary/transaction/per-customer-sales",
@@ -314,7 +440,7 @@
                         targets:[4],data:
                         "total_amount_invoice",
                         render: function(data){
-                            return '<b>'+accounting.formatNumber(data,2)+'</b>';
+                            return '<b>'+accounting.formatNumber(data,4)+'</b>';
                         }
                     }
                 ],
@@ -345,8 +471,8 @@
                             return intVal(a) + intVal(b);
                         }, 0 );
 
-                     $('#td_page_total').html('<b>'+accounting.formatNumber(pageTotal,2)+'</b>');
-                    $('#td_grand_total').html('<b>'+accounting.formatNumber(total,2)+'</b>');
+                     $('#td_page_total').html('<b>'+accounting.formatNumber(pageTotal,4)+'</b>');
+                    $('#td_grand_total').html('<b>'+accounting.formatNumber(total,4)+'</b>');
 
 
 
