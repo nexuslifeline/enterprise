@@ -20,6 +20,72 @@ class Products_model extends CORE_Model {
         return $query->result();
     }
 
+    //inventory as of date,
+    function get_inventory($as_of_date,$product_type_id=3,$is_show_all=TRUE){
+        $sql="SELECT m.*,
+                p.product_desc,p.product_desc1,rp.product_type,s.supplier_name,c.category_name,
+                p.purchase_cost,p.sale_price,tt.tax_type
+
+                FROM
+
+                (SELECT n.product_id,(SUM(n.in_qty)-SUM(n.out_qty)) as on_hand
+
+                FROM
+
+                (SELECT dii.product_id,SUM(dii.dr_qty)as in_qty,0 as out_qty FROM delivery_invoice_items as dii
+                INNER JOIN delivery_invoice as di ON di.dr_invoice_id=dii.dr_invoice_id
+
+                WHERE di.is_active=TRUE and di.is_deleted=FALSE AND di.date_delivered<='$as_of_date'
+                GROUP BY dii.product_id
+
+                UNION ALL
+
+                SELECT iss.product_id,0 as in_qty,SUM(iss.issue_qty)as out_qty FROM issuance_items as iss
+                INNER JOIN issuance_info as ii ON ii.issuance_id=iss.issuance_id
+
+                WHERE ii.is_active=TRUE AND ii.is_deleted=FALSE AND ii.date_issued<='$as_of_date'
+                GROUP BY iss.product_id
+
+                UNION ALL
+
+                SELECT aii.product_id,SUM(aii.adjust_qty) as in_qty,0 as out_qty FROM adjustment_items as aii
+                INNER JOIN adjustment_info as ai ON ai.adjustment_id=aii.adjustment_id
+
+                WHERE ai.is_active=TRUE AND ai.is_deleted=FALSE AND ai.date_adjusted<='$as_of_date'
+                AND ai.adjustment_type='IN'
+                GROUP BY aii.product_id
+
+                UNION ALL
+
+                SELECT aii.product_id,0 as in_qty,SUM(aii.adjust_qty) as out_qty FROM adjustment_items as aii
+                INNER JOIN adjustment_info as ai ON ai.adjustment_id=aii.adjustment_id
+
+                WHERE ai.is_active=TRUE AND ai.is_deleted=FALSE AND ai.date_adjusted<='$as_of_date'
+                AND ai.adjustment_type='OUT'
+                GROUP BY aii.product_id
+
+                UNION ALL
+
+                SELECT sii.product_id,0 as in_qty,SUM(sii.inv_qty)as out_qty FROM sales_invoice_items as sii
+                INNER JOIN sales_invoice as si ON si.sales_invoice_id=sii.sales_invoice_id
+
+                WHERE si.is_active=TRUE AND si.is_deleted=FALSE AND si.date_invoice<='$as_of_date'
+                GROUP BY sii.product_id) as n GROUP BY n.product_id) as m
+
+                LEFT JOIN products as p ON p.product_id=m.product_id
+                LEFT JOIN refproduct as rp ON rp.refproduct_id=p.refproduct_id
+                LEFT JOIN suppliers as s ON s.supplier_id=p.supplier_id
+                LEFT JOIN categories as c ON c.category_id=p.category_id
+                LEFT JOIN tax_types as tt ON tt.tax_type_id=p.tax_type_id
+                WHERE p.is_deleted=FALSE
+                ".($product_type_id==3?"":" AND rp.refproduct_id=".$product_type_id)."
+                ".($is_show_all==TRUE?"":" AND m.on_hand>0")."
+                ORDER BY p.product_desc
+                ";
+
+        return $this->db->query($sql)->result();
+    }
+
 
 
 

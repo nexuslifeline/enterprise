@@ -22,10 +22,6 @@
     <link href="assets/plugins/select2/select2.min.css" rel="stylesheet">
 
 
-
-    <link type="text/css" href="assets/plugins/iCheck/skins/minimal/blue.css" rel="stylesheet">              <!-- iCheck -->
-    <link type="text/css" href="assets/plugins/iCheck/skins/minimal/_all.css" rel="stylesheet">                   									<!-- Custom Checkboxes / iCheck -->
-
     <link href="assets/plugins/datapicker/datepicker3.css" rel="stylesheet">
 
     <link href="assets/plugins/select2/select2.min.css" rel="stylesheet">
@@ -93,6 +89,28 @@
 
                                     <br />
 
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            Product Type : <br />
+                                            <select name="report" id="cboProductType" data-error-msg="Product type is required." required>
+
+                                                <?php foreach($product_types as $type){ ?>
+                                                <option value="<?php echo $type->refproduct_id; ?>"><?php echo $type->product_type; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <br />
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <input type="checkbox" id="chk_show_all" value="1">Show Items with 0 Qty
+                                        </div>
+                                    </div>
+
+                                    <br />
+
 
                                     <div class="row">
                                         <div class="col-sm-12">
@@ -121,6 +139,7 @@
                                     <div class="row">
                                         <div class="col-xs-12">
                                             <button id="btn_print" class="btn btn-primary">Print</button>
+                                            <button id="btn_export" class="btn btn-success">Export to Excel</button>
                                             <button class="btn btn-red" data-dismiss="modal">Close</button>
                                         </div>
                                     </div>
@@ -166,9 +185,15 @@
 
                 //if($('#cbo_report').val()==1){
                     window.open('Templates/layout/inventory?type=preview&date='+$('#dt_date_filter').val()+'&format='+$('#cbo_report').val());
+
                 //}else{
                    // window.open('Templates/layout/inventory?type=preview&date='+$('#dt_date_filter').val()+'$format='+$('#cbo_report').val());
                 //}
+
+            });
+
+            $('#btn_export').click(function(){
+                window.open('Inventory/transaction/export?date='+$('#dt_date_filter').val()+'&type_id='+$('#cboProductType').select2('val')+'&show_all='+$('#chk_show_all:checked').val());
 
             });
 
@@ -185,9 +210,19 @@
             _cboDepartments.select2("enable",false);
 
             _cboReport=$("#cbo_report").select2({
-                placeholder: "Please select branch.",
+                placeholder: "Please select type.",
                 allowClear: false
             });
+
+            _cboReport.select2('enable',false);
+
+
+            _cboProdType=$("#cboProductType").select2({
+                placeholder: "Please product type.",
+                allowClear: false
+            });
+
+            _cboProdType.select2('val',3);
 
 
             $('.date-picker').datepicker({
