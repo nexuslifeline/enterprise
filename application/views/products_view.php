@@ -422,6 +422,7 @@ $(document).ready(function(){
                     }
                 }).done(function(response){
                     row.child( response ).show();
+                    reInitializeDatePicker();
 
                     // Add to the 'open' array
                     if ( idx === -1 ) {
@@ -675,6 +676,16 @@ $(document).ready(function(){
         $('#product_type').val('');
         $('#description').val('');
         $(f).find('select:first').focus();
+    };
+
+    var reInitializeDatePicker=function(){
+        $('.date-picker').datepicker({
+            todayBtn: "linked",
+            keyboardNavigation: false,
+            forceParse: false,
+            calendarWeeks: true,
+            autoclose: true
+        });
     };
 
     function validateNumber(event) {

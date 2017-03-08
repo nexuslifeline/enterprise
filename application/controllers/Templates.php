@@ -732,6 +732,8 @@ class Templates extends CORE_Controller {
                 $journal_id=$this->input->get('id',TRUE);
                 $type=$this->input->get('type',TRUE);
 
+
+
                 $journal_info=$m_journal_info->get_list(
                     $journal_id,
 
@@ -751,6 +753,11 @@ class Templates extends CORE_Controller {
                     )
 
                 );
+
+                $amount=$journal_info[0]->amount;
+                $formatted_amount = $this->convertDecimalToWords($amount);
+
+                $data['formatted_amount']=$formatted_amount;
 
                 $company=$m_company->get_list();
                 $data['company_info']=$company[0];
