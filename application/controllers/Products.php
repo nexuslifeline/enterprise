@@ -194,7 +194,7 @@ class Products extends CORE_Controller
                 $product_id=$this->input->get('id');
                 $m_products=$this->Products_model;
 
-                $data['products']=$m_products->get_product_history($product_id);
+                $data['products']=$m_products->get_product_history($product_id,"2000-01-01"."1",date('Y-m-d')); //temp date only
                 $data['product_id']=$product_id;
                 $this->load->view('Template/product_history_menus',$data);
                 $this->load->view('Template/product_history',$data);
@@ -202,22 +202,21 @@ class Products extends CORE_Controller
             case 'export-product-history':
                 $excel=$this->excel;
                 $product_id=$this->input->get('id');
+                $start=date('Y-m-d',strtotime($this->input->get('start')));
+                $end=date('Y-m-d',strtotime($this->input->get('end')));
                 $m_products=$this->Products_model;
 
                 $product_info=$m_products->get_list($product_id);
-
-
 
                 $excel->setActiveSheetIndex(0);
 
 
                 //name the worksheet
-                $excel->getActiveSheet()->setTitle($product_info[0]->product_desc."  History");
+                $excel->getActiveSheet()->setTitle("History");
 
                 $excel->getActiveSheet()->getStyle('A1')->getFont()->setBold(TRUE);
                 $excel->getActiveSheet()->setCellValue('A1',$product_info[0]->product_desc."  History")
-                    ->setCellValue('A2',"As of Date ".date('m/d/Y'));
-
+                    ->setCellValue('A2',"Period ".date('m/d/Y',strtotime($this->input->get('start')))." to ".date('m/d/Y',strtotime($this->input->get('end'))));
 
                 //create headers
                 $excel->getActiveSheet()->getStyle('A4:I4')->getFont()->setBold(TRUE);
@@ -234,7 +233,7 @@ class Products extends CORE_Controller
 
 
 
-                $transaction=$m_products->get_product_history($product_id);
+                $transaction=$m_products->get_product_history($product_id,$start,$end);
                 $rows=array();
                 foreach($transaction as $x){
                     $rows[]=array(

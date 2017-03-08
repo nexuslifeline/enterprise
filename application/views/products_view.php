@@ -197,6 +197,22 @@ $(document).ready(function(){
         });
         // END HERE
 
+
+
+        $('#tbl_products').on('click','button.btn-export',function(){
+
+            var _parent=$(this).closest('div#div_product_history_menu');
+            var id=$(this).data('product-id');
+            var start=_parent.find('.date-start').val();
+            var end=_parent.find('.date-end').val();
+
+            window.open('Products/transaction/export-product-history?id='+id+'&start='+start+'&end='+end);
+
+
+        });
+
+
+
         // NEW PRODUCT TYPE
         $("#product_type_modal").on("change", function () {        
             $modal = $('#modal_product_type');

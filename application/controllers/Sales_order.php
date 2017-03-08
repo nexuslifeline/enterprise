@@ -62,6 +62,23 @@ class Sales_order extends CORE_Controller
 
     function transaction($txn = null,$id_filter=null) {
         switch ($txn){
+            case 'test':
+
+                    $arr=array(
+                        'customers'=>array(
+                            'cus_name'=>'Paul Rueda',
+                            'Address'=>'San Simon'
+                        ),
+                        'suppliers'=>array(
+                            'Sup_name'=>'JK',
+                            'Address'=>'San Simon'
+                        )
+                    );
+
+
+
+                break;
+
             case 'list':  //this returns JSON of Issuance to be rendered on Datatable
                 $m_sales_order=$this->Sales_order_model;
                 $response['data']=$this->response_rows(

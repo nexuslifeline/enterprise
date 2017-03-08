@@ -21,10 +21,12 @@ class Products_model extends CORE_Model {
     }
 
     //inventory as of date,
-    function get_inventory($as_of_date,$product_type_id=3,$is_show_all=TRUE){
-        $sql="SELECT m.*,
+    function get_inventory($as_of_date,$product_type_id=3,$is_show_all=TRUE,$supplier_id=0){
+        $sql="SELECT
+
+                m.*,
                 p.product_desc,p.product_desc1,rp.product_type,s.supplier_name,c.category_name,
-                p.purchase_cost,p.sale_price,tt.tax_type
+                p.purchase_cost,p.sale_price,tt.tax_type,u.unit_name
 
                 FROM
 
@@ -77,9 +79,11 @@ class Products_model extends CORE_Model {
                 LEFT JOIN suppliers as s ON s.supplier_id=p.supplier_id
                 LEFT JOIN categories as c ON c.category_id=p.category_id
                 LEFT JOIN tax_types as tt ON tt.tax_type_id=p.tax_type_id
+                LEFT JOIN units as u ON u.unit_id=p.unit_id
                 WHERE p.is_deleted=FALSE
                 ".($product_type_id==3?"":" AND rp.refproduct_id=".$product_type_id)."
                 ".($is_show_all==TRUE?"":" AND m.on_hand>0")."
+                ".($supplier_id==0?"":" AND p.supplier_id=".$supplier_id)."
                 ORDER BY p.product_desc
                 ";
 
@@ -89,7 +93,7 @@ class Products_model extends CORE_Model {
 
 
 
-    function get_product_history($product_id){
+    function get_product_history($product_id,$start,$end){
         $this->db->query("SET @nBalance:=0.00;");
         $sql="
 
@@ -115,7 +119,7 @@ class Products_model extends CORE_Model {
                  FROM adjustment_info as ai
                 INNER JOIN `adjustment_items` as aii ON aii.adjustment_id=ai.adjustment_id
                 WHERE ai.adjustment_type='IN' AND ai.is_active=TRUE AND ai.is_deleted=FALSE
-                AND aii.product_id=$product_id
+                AND aii.product_id=$product_id AND ai.date_adjusted BETWEEN '$start' AND '$end'
 
 
                 UNION ALL
@@ -135,7 +139,7 @@ class Products_model extends CORE_Model {
                  FROM adjustment_info as ai
                 INNER JOIN `adjustment_items` as aii ON aii.adjustment_id=ai.adjustment_id
                 WHERE ai.adjustment_type='OUT' AND ai.is_active=TRUE AND ai.is_deleted=FALSE
-                AND aii.product_id=$product_id
+                AND aii.product_id=$product_id AND ai.date_adjusted BETWEEN '$start' AND '$end'
 
 
 
@@ -158,7 +162,7 @@ class Products_model extends CORE_Model {
                 INNER JOIN delivery_invoice_items as dii
                 ON dii.dr_invoice_id=di.dr_invoice_id
                 WHERE di.is_active=TRUE AND di.is_deleted=FALSE
-                AND dii.product_id=$product_id
+                AND dii.product_id=$product_id  AND di.date_delivered BETWEEN '$start' AND '$end'
 
 
                 UNION ALL
@@ -179,7 +183,7 @@ class Products_model extends CORE_Model {
                 INNER JOIN sales_invoice_items as sii
                 ON sii.sales_invoice_id=si.sales_invoice_id
                 WHERE si.is_active=TRUE AND si.is_deleted=FALSE AND si.inv_type=1
-                AND sii.product_id=$product_id
+                AND sii.product_id=$product_id  AND si.date_invoice BETWEEN '$start' AND '$end'
 
 
 
@@ -200,7 +204,7 @@ class Products_model extends CORE_Model {
                 INNER JOIN issuance_items as iit ON iit.issuance_id=ii.issuance_id
 
                 WHERE ii.is_active=TRUE AND ii.is_deleted=FALSE
-                AND iit.product_id=$product_id
+                AND iit.product_id=$product_id  AND ii.date_issued BETWEEN '$start' AND '$end'
 
 
                 UNION ALL
@@ -220,6 +224,9 @@ class Products_model extends CORE_Model {
                 INNER JOIN sales_invoice_items as sii
                 ON sii.sales_invoice_id=si.sales_invoice_id
                 WHERE si.is_active=TRUE AND si.is_deleted=FALSE AND si.inv_type=2 AND sii.product_id=$product_id
+
+                AND si.date_invoice BETWEEN '$start' AND '$end'
+
                 ) as m ORDER BY m.txn_date ASC) as n  LEFT JOIN products as p ON n.product_id=p.product_id";
 
         return $this->db->query($sql)->result();

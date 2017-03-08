@@ -70,7 +70,11 @@ class Sales_invoice_model extends CORE_Model
                 SELECT nQ.*,
                 (
 
-                IF(nQ.inv_price=0,0,nQ.purchase_cost*nQ.inv_qty)
+                    IF(
+                        nQ.inv_price=0,
+                        nQ.purchase_cost*nQ.fg, /**change @ 3/8/2017 even if it is free, show the cost when it was invoice**/
+                        nQ.purchase_cost*nQ.inv_qty
+                    )
 
                 )as cost_of_sales
 
@@ -89,7 +93,7 @@ class Sales_invoice_model extends CORE_Model
                 IFNULL(SUM(sii.inv_line_total_price),0) as sales,
 
                 IF(sii.inv_price=0,
-                  0,
+                  sii.cost_upon_invoice, /**change @ 3/8/2017 even if it is free, show the cost when it was invoice**/
                   sii.cost_upon_invoice
                 )as purchase_cost /**GET THE COST OF THE PRODUCT WHEN IT WAS INVOICED**/
 

@@ -325,24 +325,45 @@
     </div>
 
     <hr>
-    <div class="row">
+    <div class="row" style="padding: 1%;">
 
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <label class="control-label" style="font-family: Tahoma;">Please select product type first :</label>
-            <div class="col-lg-12" style="padding: 0%;">
-                <select name="producttype" id="cbo_prodType" data-error-msg="Product Type is required." required>
-                    <?php foreach($refproducts as $refproduct){ ?>
-                        <option value="<?php echo $refproduct->refproduct_id; ?>"><?php echo $refproduct->product_type; ?></option>
-                    <?php } ?>
-                </select>
+        <div class="row">
+            <div class="col-lg-9">
+                <label style="font-family: Tahoma;">Please select product type first :</label>
+                <div style="padding: 0%;">
+                    <select name="producttype" id="cbo_prodType" data-error-msg="Product Type is required." required>
+                        <?php foreach($refproducts as $refproduct){ ?>
+                            <option value="<?php echo $refproduct->refproduct_id; ?>"><?php echo $refproduct->product_type; ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <label style="font-family: Tahoma;">Please select Default Lookup Price :</label>
+                <div style="padding: 0%;">
+                    <select name="lookup_price" id="cboLookupPrice">
+                        <option value="1">SRP (Recommended)</option>
+                        <option value="2">Distributor Price</option>
+                        <option value="3">Dealer Price</option>
+                        <option value="4">Public Price</option>
+                        <option value="5">Discounted Price</option>
+                        <option value="6">Purchase Cost</option>
+                    </select>
+                </div>
             </div>
         </div>
 
+
+
+        <br />
+
+        <label class="control-label" style="font-family: Tahoma;"><strong>Enter PLU or Search Item :</strong></label>
+        <div id="custom-templates">
+            <input class="typeahead" type="text" placeholder="Enter PLU or Search Item">
+        </div><br />
+
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12"><br />
-            <label class="control-label" style="font-family: Tahoma;"><strong>Enter PLU or Search Item :</strong></label>
-            <div id="custom-templates">
-                <input class="typeahead" type="text" placeholder="Enter PLU or Search Item">
-            </div><br />
+
 
             <form id="frm_items">
                 <div class="table-responsive">
@@ -820,7 +841,8 @@
 
 
 $(document).ready(function(){
-    var dt; var _txnMode; var _selectedID; var _selectRowObj; var _cboDepartments, _cboSalesperson; var _cboCustomers; var _productType;
+    var dt; var _txnMode; var _selectedID; var _selectRowObj;
+    var _cboDepartments, _cboSalesperson; var _cboCustomers; var _productType; var _lookUpPrice; var _defLookUp;
 
     var oTableItems={
         qty : 'td:eq(0)',
@@ -886,6 +908,12 @@ $(document).ready(function(){
             placeholder: "Please select customer.",
             allowClear: true
         });
+
+
+        _lookUpPrice = $('#cboLookupPrice').select2({
+            allowClear: false
+        });
+        _lookUpPrice.select2('val',1);
 
         _cboDepartments=$("#cbo_departments").select2({
             placeholder: "Please select branch.",
@@ -999,10 +1027,10 @@ $(document).ready(function(){
         source: products,
         templates: {
             header: [
-                '<table width="100%"><tr><td width=10%" style="padding-left: 1%;"><b>PLU</b></td><td width="30%" align="left"><b>Description 1</b></td><td width="15%" align="left"><b>Batch #</b></td><td width="15%" align="left"><b>Expiration</b></td><td width="15%" style="padding-right: 2%;text-align: right"><b>On hand</b></td><td width="15%" align="right" style="padding-right: 2%;"><b>SRP</b></td></tr></table>'
+                '<table width="100%"><tr><td width=7%" style="padding-left: 1%;"><b>PLU</b></td><td width="20%" align="left"><b>Description 1</b></td><td width="7%" align="left"><b>Batch #</b></td><td width="7%" align="left"><b>Expiration</b></td><td width="7%" style="text-align: right;padding-right:1%;"><b>On hand</b></td><td width="7%" align="right" style="padding-right: 2%;"><b>SRP</b></td><td width="7%" align="right" style="padding-right: 0%;"><b>Dealer</b></td><td width="7%" align="right" style="padding-right: 0%;"><b>Distributor</b></td><td width="7%" align="right" style="padding-right: 0%;"><b>Discounted</b></td><td width="7%" align="right" style="padding-right: 0%;"><b>Public</b></td><td width="7%" align="right" style="padding-right: 1%;"><b>Cost</b></td></tr></table>'
             ].join('\n'),
 
-            suggestion: Handlebars.compile('<table width="100%"><tr><td width="10%" style="padding-left: 1%">{{product_code}}</td><td width="30%" align="left">{{product_desc}}</td><td width="15%" align="left">{{batch_no}}</td><td width="15%" align="left">{{exp_date}}</td><td width="15%" align="right">{{on_hand}}</td><td width="15%" align="right" style="padding-right: 2%;">{{srp}}</td></tr></table>')
+            suggestion: Handlebars.compile('<table width="100%"><tr><td width="7%" style="padding-left: 1%">{{product_code}}</td><td width="20%" align="left">{{product_desc}}</td><td width="7%" align="left">{{batch_no}}</td><td width="7%" align="left">{{exp_date}}</td><td width="7%" style="padding-right:1%;" align="right">{{on_hand_per_batch}}</td><td width="7%" align="right" style="padding-right: 2%;">{{srp}}</td><td width="7%" align="right" style="padding-right: 0%;">{{srp_dealer}}</td><td width="7%" align="right" style="padding-right: 0%;">{{srp_distributor}}</td><td width="7%" align="right" style="padding-right: 0%;">{{srp_discounted}}</td><td width="7%" align="right" style="padding-right: 0%;">{{srp_public}}</td><td width="7%" align="right" style="padding-right: 1%;">{{srp_cost}}</td></tr></table>')
 
         }
     }).on('keyup', this, function (event) {
@@ -1016,11 +1044,27 @@ $(document).ready(function(){
     }).bind('typeahead:select', function(ev, suggestion) {
 
 
+            var tax_rate=suggestion.tax_rate; // tax rate is based the tax type set to selected product
+            var _defLookUp=_lookUpPrice.select2('val');
+
+            if(_defLookUp=="2"){
+                total=getFloat(suggestion.distributor_price);
+            }else if(_defLookUp=="3"){
+                total=getFloat(suggestion.dealer_price);
+            }
+            else if(_defLookUp=="4"){
+                total=getFloat(suggestion.public_price);
+            }
+            else if(_defLookUp=="5"){
+                total=getFloat(suggestion.discounted_price);
+            }
+            else if(_defLookUp=="6"){
+                total=getFloat(suggestion.purchase_cost);
+            }else{
+                total=getFloat(suggestion.sale_price);
+            }
 
 
-        var tax_rate=suggestion.tax_rate; // tax rate is based the tax type set to selected product
-
-            var total=getFloat(suggestion.sale_price);
             var net_vat=0;
             var vat_input=0;
 
@@ -1045,7 +1089,7 @@ $(document).ready(function(){
                 so_line_total_discount : "0.00",
                 tax_exempt : false,
                 so_tax_rate : tax_rate,
-                so_price : suggestion.sale_price,
+                so_price : total,
                 so_discount : "0.00",
                 tax_type_id : null,
                 so_line_total_price : total,

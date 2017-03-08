@@ -15,7 +15,8 @@ class Inventory extends CORE_Controller
             (
                 'Departments_model',
                 'Refproduct_model',
-                'Products_model'
+                'Products_model',
+                'Suppliers_model'
             )
         );
     }
@@ -30,6 +31,7 @@ class Inventory extends CORE_Controller
 
         $data['departments']=$this->Departments_model->get_list(array('is_deleted'=>FALSE,'is_active'=>TRUE));
         $data['product_types']=$this->Refproduct_model->get_list(array('is_deleted'=>FALSE));
+        $data['suppliers']=$this->Suppliers_model->get_list(array('is_deleted'=>FALSE));
 
         $this->load->view('inventory_report_view',$data);
 
@@ -45,6 +47,7 @@ class Inventory extends CORE_Controller
                 $is_show_all=($this->input->get('show_all',TRUE)==1?TRUE:FALSE);
                 $prod_type_id=$this->input->get('type_id',TRUE);
                 $date=date('Y-m-d',strtotime($this->input->get('date',TRUE)));
+                $supplier_id=$this->input->get('supid',TRUE);
 
 
                 $excel=$this->excel;
@@ -57,18 +60,20 @@ class Inventory extends CORE_Controller
                 //create headers
                 $excel->getActiveSheet()->getStyle('A4:I4')->getFont()->setBold(TRUE);
                 $excel->getActiveSheet()->setCellValue('A4', 'Product')
-                    ->setCellValue('B4', 'Product type')
-                    ->setCellValue('C4', 'Supplier')
-                    ->setCellValue('D4', 'Category')
-                    ->setCellValue('E4', 'Purchase')
-                    ->setCellValue('F4', 'SRP')
-                    ->setCellValue('G4', 'On Hand');
+                    ->setCellValue('B4', 'Unit')
+                    ->setCellValue('C4', 'Product type')
+                    ->setCellValue('D4', 'Supplier')
+                    ->setCellValue('E4', 'Category')
+                    ->setCellValue('F4', 'Purchase')
+                    ->setCellValue('G4', 'SRP')
+                    ->setCellValue('H4', 'On Hand');
 
-                $inventory=$m_products->get_inventory($date,$prod_type_id,$is_show_all);
+                $inventory=$m_products->get_inventory($date,$prod_type_id,$is_show_all,$supplier_id);
                 $rows=array();
                 foreach($inventory as $x){
                     $rows[]=array(
                         $x->product_desc,
+                        $x->unit_name,
                         $x->product_type,
                         $x->supplier_name,
                         $x->category_name,
@@ -81,11 +86,11 @@ class Inventory extends CORE_Controller
                 $max_rows=count($inventory)+4;
 
                 for($i=5;$i<=$max_rows;$i++){
-                    $excel->getActiveSheet()->getStyle('E'.$i.':F'.$i)->getNumberFormat()->setFormatCode('###,##0.00;(###,##0.00)');
+                    $excel->getActiveSheet()->getStyle('G'.$i.':H'.$i)->getNumberFormat()->setFormatCode('###,##0.00;(###,##0.00)');
                 }
 
                 //autofit column
-                foreach(range('A','G') as $columnID)
+                foreach(range('A','H') as $columnID)
                 {
                     $excel->getActiveSheet()->getColumnDimension($columnID)->setAutoSize(TRUE);
                 }

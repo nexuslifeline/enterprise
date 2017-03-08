@@ -92,10 +92,24 @@
                                     <div class="row">
                                         <div class="col-sm-12">
                                             Product Type : <br />
-                                            <select name="report" id="cboProductType" data-error-msg="Product type is required." required>
+                                            <select name="report" id="cboProductType">
 
                                                 <?php foreach($product_types as $type){ ?>
                                                 <option value="<?php echo $type->refproduct_id; ?>"><?php echo $type->product_type; ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <br />
+
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            Suppliers : <br />
+                                            <select name="report" id="cboSuppliers">
+                                                <option value="0">All Suppliers</option>
+                                                <?php foreach($suppliers as $supplier){ ?>
+                                                    <option value="<?php echo $supplier->supplier_id; ?>"><?php echo $supplier->supplier_name; ?></option>
                                                 <?php } ?>
                                             </select>
                                         </div>
@@ -173,7 +187,7 @@
 
 <script>
     $(document).ready(function(){
-        var _cboDepartments; var _cboReport;
+        var _cboDepartments; var _cboReport; var _cboSuppliers;
 
 
 
@@ -193,7 +207,7 @@
             });
 
             $('#btn_export').click(function(){
-                window.open('Inventory/transaction/export?date='+$('#dt_date_filter').val()+'&type_id='+$('#cboProductType').select2('val')+'&show_all='+$('#chk_show_all:checked').val());
+                window.open('Inventory/transaction/export?date='+$('#dt_date_filter').val()+'&type_id='+$('#cboProductType').select2('val')+'&show_all='+$('#chk_show_all:checked').val()+'&supid='+_cboSuppliers.select2('val'));
 
             });
 
@@ -208,6 +222,14 @@
             });
 
             _cboDepartments.select2("enable",false);
+
+            _cboSuppliers=$("#cboSuppliers").select2({
+                placeholder: "Please select supplier.",
+                allowClear: false,
+                enabled: false
+            });
+
+            _cboSuppliers.select2("val",0);
 
             _cboReport=$("#cbo_report").select2({
                 placeholder: "Please select type.",
