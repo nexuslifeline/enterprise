@@ -804,6 +804,10 @@ class Templates extends CORE_Controller {
 
                 }
 
+                if($type=='cash-voucher') {
+                    echo $this->load->view('template/cash_voucher_report',$data,TRUE);
+                }
+
                 //preview on browser
                 if($type=='preview'){
                     $file_name=$journal_info[0]->txn_no;
