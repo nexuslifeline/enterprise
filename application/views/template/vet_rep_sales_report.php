@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Customers Sales Summary Report</title>
+	<title>Salesperson Sales Summary Report</title>
 	<style type="text/css">
         body {
             font-family: 'Calibri',sans-serif;
@@ -53,11 +53,11 @@
         </tr>
     </table><hr>
     <div>
-        <h1 class="report-header" style="text-align: center;"><strong>CUSTOMER SALES REPORT</strong></h1>
+        <h1 class="report-header" style="text-align: center;"><strong>SALESPERSON SALES REPORT</strong></h1>
         <p style="text-align: center;">Period <?php echo $_GET['startDate']; ?> to <?php echo $_GET['endDate']; ?></p>
     </div>
-    <?php foreach ($customers as $customer) { ?>
-        <h2><?php echo $customer->customer_name; ?></h2>
+    <?php foreach ($salespersons as $salesperson) { ?>
+        <h2><?php echo $salesperson->salesperson_name; ?></h2>
     
     <table width="95%" style="margin-left: 5%; text-align: right;">
         <thead>
@@ -71,15 +71,15 @@
         <tbody>
             <?php $sum=0; 
                 foreach($sales_summary as $summary) { 
-                    if($summary->customer_id==$customer->customer_id) { ?>
+                    if($summary->salesperson_id==$salesperson->salesperson_id) { ?>
                         <tr>
                             <td style="text-align: left;"><?php echo $summary->sales_inv_no; ?></td>
                             <td style="text-align: left;"><?php echo $summary->date_invoice; ?></td>
                             <td style="text-align: left;"><?php echo $summary->remarks; ?></td>
-                            <td><?php echo number_format($summary->total_after_tax,4); ?></td>
+                            <td><?php echo number_format($summary->total_amount_invoice,4); ?></td>
                         </tr>
                     <?php
-                    $sum+=$summary->total_after_tax; 
+                    $sum+=$summary->total_amount_invoice; 
                     }
                 }
             ?>
