@@ -75,7 +75,7 @@ class Sales_invoice_model extends CORE_Model
                 )as cost_of_sales
 
                 FROM
-                (SELECT si.sales_inv_no,si.date_invoice,sii.inv_price,
+                (SELECT si.sales_inv_no,si.date_invoice,sii.inv_price, CONCAT(sp.firstname, ' ', sp.lastname, ' - ', sp.acr_name) AS salesperson_name,
                 '' as dr_si,'' as vr,c.customer_name,
                 IF(sii.inv_price=0,CONCAT(pr.product_desc,' (Free)'),pr.product_desc)as product_desc,
                 refp.product_type,
@@ -101,6 +101,7 @@ class Sales_invoice_model extends CORE_Model
                 INNER JOIN sales_invoice_items as sii ON si.sales_invoice_id=sii.sales_invoice_id
                 LEFT JOIN (products as pr  LEFT JOIN refproduct as refp ON refp.refproduct_id=pr.refproduct_id)ON sii.product_id=pr.product_id
                 LEFT JOIN suppliers as s ON pr.supplier_id=s.supplier_id
+                LEFT JOIN salesperson as sp ON sp.salesperson_id=si.salesperson_id
 
                 WHERE si.date_invoice BETWEEN '$start' AND '$end' AND si.is_active=TRUE AND si.is_deleted=FALSE
 
