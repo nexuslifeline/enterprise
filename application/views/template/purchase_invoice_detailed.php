@@ -65,6 +65,7 @@
 						<thead>
 							<tr>
 								<td style="text-align: left;" width="40%"><strong>PRODUCT</strong></td>
+                                <td style="text-align: left;" width="20%"><strong>PRODUCT TYPE</strong></td>
 				    			<td width="20%"><strong>UNIT COST</strong></td>
 				    			<td width="10%"><strong>QTY</strong></td>
 				    			<td width="30%"><strong>TOTAL NET</strong></td>
@@ -76,6 +77,7 @@
 							<?php if($detail->supplier_id==$invoice_number->supplier_id&&$detail->dr_invoice_id==$invoice_number->dr_invoice_id) { ?>
 								<tr>
 									<td style="text-align: left;"><?php echo $detail->product_desc; ?></td>
+                                    <td style="text-align: left;"><?php echo $detail->product_type; ?></td>
 									<td><?php echo number_format($detail->dr_price,4); ?></td>
 									<td><?php echo number_format($detail->dr_qty,0); ?></td>
 									<td><?php echo number_format($detail->dr_line_total_price,4); ?></td>

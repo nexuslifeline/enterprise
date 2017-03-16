@@ -64,6 +64,8 @@
     		<tr>
     			<td style="text-align: left;"><strong>Ref #</strong></td>
     			<td style="text-align: left;"><strong>Date</strong></td>
+                <td><strong>Tax Type</strong></td>
+                <td><strong>Product Type</strong></td>
     			<td><strong>Invoice Amount</strong></td>
     		</tr>
     	</thead>
@@ -73,8 +75,10 @@
     		 foreach ($purchase_invoice_summary as $summary) {
 				if ($summary->supplier_id==$supplier->supplier_id) { ?> 
     					<tr>
+                            <td style="text-align: left;"><?php echo $summary->date_delivered; ?></td>
     						<td style="text-align: left;"><?php echo $summary->dr_invoice_no; ?></td>
-    						<td style="text-align: left;"><?php echo $summary->date_delivered; ?></td>
+                            <td><?php echo $summary->tax_type; ?></td>
+                            <td><?php echo $summary->product_type; ?></td>
     						<td><?php echo number_format($summary->total_after_tax,4); ?></td>
     					</tr>		
        				<?php
@@ -85,6 +89,8 @@
     		<tr>
     			<td></td>
     			<td></td>
+                <td></td>
+                <td></td>
 				<td><h2><?php echo number_format($sum,2); ?></h2></td>
 			</tr>
     	</tbody>

@@ -39,6 +39,16 @@
             zoom: 80%;
         }
 
+        tr.group,
+        tr.group:hover {
+            background-color: #eaeaea !important;
+        }
+
+        div.dataTables_filter input { 
+            margin-top: -5px;
+            margin-left: 760px;
+        }
+
         .numericCol {
             text-align: right;
         }
@@ -106,6 +116,17 @@
                                                                 </div> -->
 
                                                                 <div class="col-lg-4">
+                                                                    Product Type * :<br/>
+                                                                    <select id="cbo_prodType" class="form-control">
+                                                                        <?php foreach($product_types as $product_type) { ?>
+                                                                            <option value="<?php echo $product_type->refproduct_id; ?>">
+                                                                                <?php echo $product_type->product_type; ?>
+                                                                            </option>
+                                                                        <?php } ?>
+                                                                    </select>
+                                                                </div>
+
+                                                                <div class="col-lg-4">
                                                                     Period Start * :<br />
                                                                     <div class="input-group">
                                                                         <input type="text" id="txt_date" name="date_from" class="date-picker form-control" value="01/01/<?php echo date("Y"); ?>">
@@ -136,38 +157,43 @@
                                                                 </ul>
                                                                 <div class="tab-content">
                                                                     <div id="summary" class="tab-pane fade in active">
-                                                                        <button class="btn btn-primary pull-left" id="btn_print_summary"><i class="fa fa-print"></i>&nbsp; Print Report</button>
+                                                                        <button class="btn btn-primary pull-left" id="btn_print_summary" style="margin-right: 5px; margin-top: 0; margin-bottom: 10px;"><i class="fa fa-print"></i>&nbsp; Print Report</button>
+                                                                        <button class="btn btn-success pull-left" id="btn_print_excel_summary" style="margin-right: 5px; margin-top: 0; margin-bottom: 10px;"><i class="fa fa-file-excel-o"></i>&nbsp; Export to Excel</button>
                                                                         <table id="tbl_pi_summary" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                                                             <thead class="">
                                                                             <tr>
-                                                                                <th>Ref #</th>
                                                                                 <th>Supplier</th>
                                                                                 <th>Date</th>
-                                                                                <th>Invoice Amount</th>
+                                                                                <th>Invoice Number of Supplier</th>
+                                                                                <th>Vat Type</th>
+                                                                                <th>Product Type</th>
+                                                                                <th>Amount</th>
                                                                             </tr>
                                                                             </thead>
                                                                             <tbody>
                                                                             </tbody>
                                                                             <tfoot>
                                                                                 <tr>
-                                                                                    <td align="right" colspan="3">Current Page Total : </td>
+                                                                                    <td align="right" colspan="5">Current Page Total : </td>
                                                                                     <td id="td_page_total_summary" align="right"></td>
                                                                                 </tr>
                                                                                 <tr>
-                                                                                    <td align="right" colspan="3">Grand Total : </td>
+                                                                                    <td align="right" colspan="5">Grand Total : </td>
                                                                                     <td id="td_grand_total_summary" align="right"></td>
                                                                                 </tr>
                                                                             </tfoot>
                                                                         </table>
                                                                     </div>
                                                                     <div id="detailed" class="tab-pane fade">
-                                                                        <button class="btn btn-primary pull-left" id="btn_print_detailed"><i class="fa fa-print"></i>&nbsp; Print Report</button>
+                                                                        <button class="btn btn-primary pull-left" style="margin-right: 5px; margin-top: 0; margin-bottom: 10px;" id="btn_print_detailed"><i class="fa fa-print"></i>&nbsp; Print Report</button>
+                                                                        <button class="btn btn-success pull-left" id="btn_print_excel_detailed" style="margin-right: 5px; margin-top: 0; margin-bottom: 10px;"><i class="fa fa-file-excel-o"></i>&nbsp; Export to Excel</button>
                                                                         <table id="tbl_pi_detailed" class="table table-striped table-bordered" cellspacing="0" width="100%">
                                                                             <thead class="">
                                                                             <tr>
                                                                                 <th>Ref #</th>
                                                                                 <th>Supplier</th>
                                                                                 <th>Product</th>
+                                                                                <th>Product Type</th>
                                                                                 <th>Unit Cost</th>
                                                                                 <th>Qty</th>
                                                                                 <th>Total Amount</th>
@@ -177,11 +203,11 @@
                                                                             </tbody>
                                                                             <tfoot>
                                                                                 <tr>
-                                                                                    <td align="right" colspan="5">Current Page Total : </td>
+                                                                                    <td align="right" colspan="6">Current Page Total : </td>
                                                                                     <td id="td_page_total_detailed" align="right"></td>
                                                                                 </tr>
                                                                                 <tr>
-                                                                                    <td align="right" colspan="5">Grand Total : </td>
+                                                                                    <td align="right" colspan="6">Grand Total : </td>
                                                                                     <td id="td_grand_total_detailed" align="right"></td>
                                                                                 </tr>
                                                                             </tfoot>
@@ -246,11 +272,31 @@
 <script>
     $(document).ready(function(){
         var cbo_Type = $('#cboType');
+        var cbo_prod_type;
         var tbl_summary = $('#tbl_pi_summary');
         var tbl_detailed = $('#tbl_pi_detailed');
         var dtSummary, dtDetailed;
         var _date_from = $('input[name="date_from"]');
         var _date_to = $('input[name="date_to"]');
+
+         var initializeControls=function() {
+            $('.date-picker').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true
+            });
+
+            cbo_prod_type = $('#cbo_prodType').select2({
+                placeholder: "Please Select Product Type",
+                allowClear: true
+            });
+
+            cbo_prod_type.select2('val',3);
+
+            initializeDataTable();
+        }();
 
         var bindEventControls=function(){
             // cbo_Type.on('change', function(){
@@ -259,12 +305,26 @@
             //     initializeDataTable();
             // });
 
+            $('#btn_print_excel_summary').on('click', function(){
+                window.open('Purchase_Invoice_Report/transaction/export?type=summary&rid='+cbo_prod_type.val()+'&startDate='+_date_from.val()+'&endDate='+_date_to.val());
+            });
+
+            $('#btn_print_excel_detailed').on('click', function(){
+                window.open('Purchase_Invoice_Report/transaction/export?type=detailed&rid='+cbo_prod_type.val()+'&startDate='+_date_from.val()+'&endDate='+_date_to.val());
+            });
+
             $('#btn_print_summary').on('click', function(){
-                window.open('Purchase_Invoice_Report/transaction/purchase-invoice?type=summary&startDate='+_date_from.val()+'&endDate='+_date_to.val());
+                window.open('Purchase_Invoice_Report/transaction/purchase-invoice?type=summary&rid='+cbo_prod_type.val()+'&startDate='+_date_from.val()+'&endDate='+_date_to.val());
             });
 
             $('#btn_print_detailed').on('click', function(){
-                window.open('Purchase_Invoice_Report/transaction/purchase-invoice?type=detailed&startDate='+_date_from.val()+'&endDate='+_date_to.val());
+                window.open('Purchase_Invoice_Report/transaction/purchase-invoice?type=detailed&rid='+cbo_prod_type.val()+'&startDate='+_date_from.val()+'&endDate='+_date_to.val());
+            });
+
+            cbo_prod_type.on('select2:select', function(){
+                dtSummary.destroy();
+                dtDetailed.destroy();
+                initializeDataTable();
             });
 
             _date_from.on('change', function(){
@@ -282,17 +342,7 @@
             });
         }();
 
-        var initializeControls=function() {
-            $('.date-picker').datepicker({
-                todayBtn: "linked",
-                keyboardNavigation: false,
-                forceParse: false,
-                calendarWeeks: true,
-                autoclose: true
-            });
-
-            initializeDataTable();
-        }();
+       
 
         // function loadTable() {
         //     if (cbo_Type.val() == 0) {
@@ -314,6 +364,7 @@
                         "bDestroy":true,
                         "data": function (d) {
                             return $.extend({}, d, {
+                                "rid":cbo_prod_type.val(),
                                 "startDate":_date_from.val(),
                                 "endDate":_date_to.val()
                             });
@@ -321,17 +372,36 @@
                     },
                     
                         "columns":[
-                            { targets:[0],data: "dr_invoice_no" },
-                            { targets:[1],data: "supplier_name" },
-                            { targets:[2],data: "date_delivered" },
+                            { visible:false, targets:[0],data: "supplier_name" },
+                            { targets:[1],data: "date_delivered" },
+                            { targets:[2],data: "dr_invoice_no" },
+                            { targets:[3],data: "tax_type" },
+                            { targets:[4],data: "product_type" },
                             {
                                 sClass: "numericCol", 
-                                targets:[3],data: "total_after_tax",
-                                render: function(data,type,full,meta){
+                                targets:[5],data: "total_after_tax",
+                                render: function(data,type,full,meta) {
                                     return accounting.formatNumber(data,2);
                                 }
                             }
+                            
                         ],
+                        "order":[[0,'asc']],
+                        "drawCallback": function ( settings ) {
+                            var api = this.api();
+                            var rows = api.rows( {page:'current'} ).nodes();
+                            var last=null;
+                 
+                            api.column(0, {page:'current'} ).data().each( function ( group, i ) {
+                                if ( last !== group ) {
+                                    $(rows).eq( i ).before(
+                                        '<tr class="group"><td colspan="5">'+group+'</td></tr>'
+                                    );
+                 
+                                    last = group;
+                                }
+                            } );
+                        },
                         "footerCallback": function ( row, data, start, end, display ) {
                             var api = this.api(), data;
 
@@ -345,7 +415,7 @@
 
                             // Total over all pages
                             total = api
-                                .column( 3 )
+                                .column( 5 )
                                 .data()
                                 .reduce( function (a, b) {
                                     return intVal(a) + intVal(b);
@@ -353,7 +423,7 @@
 
                             // Total over this page
                             pageTotal = api
-                                .column( 3, { page: 'current'} )
+                                .column( 5, { page: 'current'} )
                                 .data()
                                 .reduce( function (a, b) {
                                     return intVal(a) + intVal(b);
@@ -377,6 +447,7 @@
                         "bDestroy":true,
                         "data": function (d) {
                             return $.extend({}, d, {
+                                "rid":cbo_prod_type.val(),
                                 "startDate":_date_from.val(),
                                 "endDate":_date_to.val()
                             });
@@ -384,25 +455,42 @@
                     },
                     
                         "columns":[
-                            { targets:[0],data: "dr_invoice_no" },
+                            { "visible": false,targets:[0],data: "dr_invoice_no" },
                             { targets:[1],data: "supplier_name" },
                             { targets:[2],data: "product_desc" },
+                            { targets:[3],data: "product_type" },
                             { 
                                 sClass: "numericCol", 
-                                targets:[3],data: "dr_price", 
+                                targets:[4],data: "dr_price", 
                                 render: function(data,type,full,meta){
                                     return accounting.formatNumber(data,2);
                                 } 
                             },
-                            { targets:[4],data: "dr_qty" },
+                            { targets:[5],data: "dr_qty" },
                             {
-                                sClass: "numericCol", 
-                                targets:[3],data: "total_amount",
+                                sClass: "text-center", 
+                                targets:[6],data: "total_amount",
                                 render: function(data,type,full,meta){
                                     return accounting.formatNumber(data,2);
                                 }
                             }
                         ],
+                        "order":[[0,'asc']],
+                        "drawCallback": function ( settings ) {
+                            var api = this.api();
+                            var rows = api.rows( {page:'current'} ).nodes();
+                            var last=null;
+                 
+                            api.column(0, {page:'current'} ).data().each( function ( group, i ) {
+                                if ( last !== group ) {
+                                    $(rows).eq( i ).before(
+                                        '<tr class="group"><td colspan="6">'+group+'</td></tr>'
+                                    );
+                 
+                                    last = group;
+                                }
+                            } );
+                        },
                         "footerCallback": function ( row, data, start, end, display ) {
                             var api = this.api(), data;
 
@@ -416,7 +504,7 @@
 
                             // Total over all pages
                             total = api
-                                .column( 5 )
+                                .column( 6 )
                                 .data()
                                 .reduce( function (a, b) {
                                     return intVal(a) + intVal(b);
@@ -424,7 +512,7 @@
 
                             // Total over this page
                             pageTotal = api
-                                .column( 5, { page: 'current'} )
+                                .column( 6, { page: 'current'} )
                                 .data()
                                 .reduce( function (a, b) {
                                     return intVal(a) + intVal(b);

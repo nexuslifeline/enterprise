@@ -8,37 +8,50 @@ class Delivery_invoice_model extends CORE_Model {
         parent::__construct();
     }
 
-    function get_report_summary($startDate,$endDate){
-        $sql="SELECT
-            di.dr_invoice_no,
-            s.*,
+    function get_report_summary($refproduct_id=null,$startDate,$endDate){
+        $sql="SELECT 
+            DISTINCT(x.dr_invoice_no) AS invoice_number_of_supplier,
+            x.*
+            FROM (SELECT
+            s.supplier_id,
+            s.supplier_name,
             di.date_delivered,
-            di.total_after_tax
+            di.dr_invoice_no,
+            di.total_after_tax,
+            tt.tax_type,
+            rp.product_type
             FROM 
             delivery_invoice AS di
-            LEFT JOIN suppliers AS s ON s.supplier_id = di.`supplier_id`
-            WHERE date_delivered BETWEEN '$startDate' AND '$endDate' AND di.is_active=TRUE AND di.is_deleted=FALSE
-            ORDER BY di.date_delivered,di.dr_invoice_id";
+            LEFT JOIN suppliers AS s ON s.supplier_id = di.supplier_id
+            LEFT JOIN tax_types AS tt ON tt.tax_type_id = di.tax_type_id
+            INNER JOIN delivery_invoice_items AS dii ON dii.`dr_invoice_id`=di.`dr_invoice_id`
+            LEFT JOIN products AS p ON p.`product_id`=dii.product_id
+            LEFT JOIN refproduct AS rp ON rp.`refproduct_id`=p.`refproduct_id`
+            WHERE date_delivered BETWEEN '$startDate' AND '$endDate' ". ($refproduct_id==3 ? '' : 'AND rp.refproduct_id='.$refproduct_id.'')." AND di.is_active=TRUE AND di.is_deleted=FALSE
+            ORDER BY di.date_delivered,di.dr_invoice_id ASC) AS x";
 
         return $this->db->query($sql)->result();
     }
 
-    function get_report_detailed($startDate,$endDate){
+    function get_report_detailed($refproduct_id=null,$startDate,$endDate){
         $sql="SELECT
+            rp.*,
             di.*,
             s.*,
             p.product_desc,
             p.`purchase_cost`,
             dii.`dr_qty`,
             dii.*,
-            dr_line_total_price AS total_amount
+            dr_line_total_price AS total_amount,
+            rp.*
             FROM 
             delivery_invoice AS di
             LEFT JOIN suppliers AS s ON s.supplier_id = di.`supplier_id`
-            LEFT JOIN delivery_invoice_items AS dii ON dii.`dr_invoice_id`=di.`dr_invoice_id`
+            INNER JOIN delivery_invoice_items AS dii ON dii.`dr_invoice_id`=di.`dr_invoice_id`
             LEFT JOIN products AS p ON p.`product_id`=dii.`product_id`
-            WHERE date_delivered BETWEEN '$startDate' AND '$endDate' AND di.is_active=TRUE AND di.is_deleted=FALSE
-            ORDER BY di.date_delivered,di.dr_invoice_id";
+            LEFT JOIN refproduct AS rp ON rp.refproduct_id=p.refproduct_id
+            WHERE date_delivered BETWEEN '$startDate' AND '$endDate' ". ($refproduct_id==3 ? '' : 'AND rp.refproduct_id='.$refproduct_id.'')." AND di.is_active=TRUE AND di.is_deleted=FALSE
+            ORDER BY di.date_delivered,di.dr_invoice_id ASC";
 
         return $this->db->query($sql)->result();
     }
