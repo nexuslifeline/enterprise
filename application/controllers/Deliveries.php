@@ -225,9 +225,6 @@ class Deliveries extends CORE_Controller
                         )
                     );
 
-                    //update also the cost on product master file
-                    $m_products->purchase_cost=$this->get_numeric_value($dr_price[$i]);
-                    $m_products->modify($prod_id[$i]);
 
 
 
@@ -245,20 +242,15 @@ class Deliveries extends CORE_Controller
                 $m_suppliers=$this->Suppliers_model;
                 $m_suppliers->recalculate_supplier_payable($this->input->post('supplier',TRUE));
 
-
                 $m_delivery_invoice->commit();
-
-
 
                 if($m_delivery_invoice->status()===TRUE){
                     $response['title'] = 'Success!';
                     $response['stat'] = 'success';
                     $response['msg'] = 'Delivery invoice successfully created.';
                     $response['row_added']=$this->response_rows($dr_invoice_id);
-
                     echo json_encode($response);
                 }
-
 
                 break;
 
@@ -362,9 +354,7 @@ class Deliveries extends CORE_Controller
                             'exp_date'=>date('Y-m-d', strtotime($exp_date[$i]))
                         )
                     );
-                    //update also the cost on product master file
-                    $m_products->purchase_cost=$this->get_numeric_value($dr_price[$i]);
-                    $m_products->modify($prod_id[$i]);
+
 
 
 
