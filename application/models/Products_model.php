@@ -26,53 +26,61 @@ class Products_model extends CORE_Model {
 
                 m.*,
                 p.product_desc,p.product_desc1,rp.product_type,s.supplier_name,c.category_name,
-                p.purchase_cost,p.sale_price,tt.tax_type,u.unit_name
+                m.avg_cost as purchase_cost,p.sale_price,tt.tax_type,u.unit_name
 
                 FROM
 
-                (SELECT n.product_id,(SUM(n.in_qty)-SUM(n.out_qty)) as on_hand
+
+                (SELECT n.product_id,
+                AVG(IF(n.in_qty>0,n.avg_cost,null))as avg_cost,/**********get the AVG of in qty only**********/
+                (SUM(n.in_qty)-SUM(n.out_qty)) as on_hand
 
                 FROM
 
-                (SELECT dii.product_id,SUM(dii.dr_qty)as in_qty,0 as out_qty FROM delivery_invoice_items as dii
-                INNER JOIN delivery_invoice as di ON di.dr_invoice_id=dii.dr_invoice_id
+                (
+                            SELECT dii.product_id,AVG(dii.dr_price) as avg_cost,SUM(dii.dr_qty)as in_qty,0 as out_qty FROM delivery_invoice_items as dii
+                            INNER JOIN delivery_invoice as di ON di.dr_invoice_id=dii.dr_invoice_id
 
-                WHERE di.is_active=TRUE and di.is_deleted=FALSE AND di.date_delivered<='$as_of_date'
-                GROUP BY dii.product_id
+                            WHERE di.is_active=TRUE and di.is_deleted=FALSE AND di.date_delivered<='$as_of_date'
+                            GROUP BY dii.product_id
 
-                UNION ALL
+                            UNION ALL
 
-                SELECT iss.product_id,0 as in_qty,SUM(iss.issue_qty)as out_qty FROM issuance_items as iss
-                INNER JOIN issuance_info as ii ON ii.issuance_id=iss.issuance_id
+                            SELECT iss.product_id,0 AS avg_cost,0 as in_qty,SUM(iss.issue_qty)as out_qty FROM issuance_items as iss
+                            INNER JOIN issuance_info as ii ON ii.issuance_id=iss.issuance_id
 
-                WHERE ii.is_active=TRUE AND ii.is_deleted=FALSE AND ii.date_issued<='$as_of_date'
-                GROUP BY iss.product_id
+                            WHERE ii.is_active=TRUE AND ii.is_deleted=FALSE AND ii.date_issued<='$as_of_date'
+                            GROUP BY iss.product_id
 
-                UNION ALL
+                            UNION ALL
 
-                SELECT aii.product_id,SUM(aii.adjust_qty) as in_qty,0 as out_qty FROM adjustment_items as aii
-                INNER JOIN adjustment_info as ai ON ai.adjustment_id=aii.adjustment_id
+                            SELECT aii.product_id,adjust_price AS avg_cost,SUM(aii.adjust_qty) as in_qty,0 as out_qty FROM adjustment_items as aii
+                            INNER JOIN adjustment_info as ai ON ai.adjustment_id=aii.adjustment_id
 
-                WHERE ai.is_active=TRUE AND ai.is_deleted=FALSE AND ai.date_adjusted<='$as_of_date'
-                AND ai.adjustment_type='IN'
-                GROUP BY aii.product_id
+                            WHERE ai.is_active=TRUE AND ai.is_deleted=FALSE AND ai.date_adjusted<='$as_of_date'
+                            AND ai.adjustment_type='IN'
+                            GROUP BY aii.product_id
 
-                UNION ALL
+                            UNION ALL
 
-                SELECT aii.product_id,0 as in_qty,SUM(aii.adjust_qty) as out_qty FROM adjustment_items as aii
-                INNER JOIN adjustment_info as ai ON ai.adjustment_id=aii.adjustment_id
+                            SELECT aii.product_id,0 AS avg_cost,0 as in_qty,SUM(aii.adjust_qty) as out_qty FROM adjustment_items as aii
+                            INNER JOIN adjustment_info as ai ON ai.adjustment_id=aii.adjustment_id
 
-                WHERE ai.is_active=TRUE AND ai.is_deleted=FALSE AND ai.date_adjusted<='$as_of_date'
-                AND ai.adjustment_type='OUT'
-                GROUP BY aii.product_id
+                            WHERE ai.is_active=TRUE AND ai.is_deleted=FALSE AND ai.date_adjusted<='$as_of_date'
+                            AND ai.adjustment_type='OUT'
+                            GROUP BY aii.product_id
 
-                UNION ALL
+                            UNION ALL
 
-                SELECT sii.product_id,0 as in_qty,SUM(sii.inv_qty)as out_qty FROM sales_invoice_items as sii
-                INNER JOIN sales_invoice as si ON si.sales_invoice_id=sii.sales_invoice_id
+                            SELECT sii.product_id,0 AS avg_cost,0 as in_qty,SUM(sii.inv_qty)as out_qty FROM sales_invoice_items as sii
+                            INNER JOIN sales_invoice as si ON si.sales_invoice_id=sii.sales_invoice_id
 
-                WHERE si.is_active=TRUE AND si.is_deleted=FALSE AND si.date_invoice<='$as_of_date'
-                GROUP BY sii.product_id) as n GROUP BY n.product_id) as m
+                            WHERE si.is_active=TRUE AND si.is_deleted=FALSE AND si.date_invoice<='$as_of_date'
+                            GROUP BY sii.product_id
+
+                ) as n GROUP BY n.product_id
+
+                ) as m
 
                 LEFT JOIN products as p ON p.product_id=m.product_id
                 LEFT JOIN refproduct as rp ON rp.refproduct_id=p.refproduct_id
