@@ -16,6 +16,8 @@ class Deliveries extends CORE_Controller
         $this->load->model('Purchases_model');
         $this->load->model('Departments_model');
         $this->load->model('Refproduct_model');
+        $this->load->model('Sales_invoice_item_model');
+
 
     }
 
@@ -116,6 +118,8 @@ class Deliveries extends CORE_Controller
             //***************************************create new purchase invoice************************************************
             case 'create':
                 $m_delivery_invoice=$this->Delivery_invoice_model;
+                $m_sales_invoice=$this->Sales_invoice_item_model;
+
 
                 if(count($m_delivery_invoice->get_list(array('dr_invoice_no'=>$this->input->post('dr_invoice_no',TRUE))))>0){
                     $response['title'] = 'Invalid!';
@@ -209,6 +213,24 @@ class Deliveries extends CORE_Controller
                     $m_dr_items->unit_id=$unit_id[0]->unit_id;
 
                     $m_dr_items->save();
+
+
+                    //update cost on sales invoice
+                    $m_sales_invoice->cost_upon_invoice=$this->get_numeric_value($dr_price[$i]);
+                    $m_sales_invoice->modify(
+                        array(
+                            'product_id'=>$prod_id[$i],
+                            'batch_no'=>$batch_code[$i],
+                            'exp_date'=>date('Y-m-d', strtotime($exp_date[$i]))
+                        )
+                    );
+
+                    //update also the cost on product master file
+                    $m_products->purchase_cost=$this->get_numeric_value($dr_price[$i]);
+                    $m_products->modify($prod_id[$i]);
+
+
+
                 }
 
                 //update invoice number base on formatted last insert id
@@ -244,6 +266,7 @@ class Deliveries extends CORE_Controller
             ////***************************************update purchase invoice************************************************
             case 'update':
                 $m_delivery_invoice=$this->Delivery_invoice_model;
+                $m_sales_invoice=$this->Sales_invoice_item_model;
                 $dr_invoice_id=$this->input->post('dr_invoice_id',TRUE);
 
 
@@ -328,6 +351,22 @@ class Deliveries extends CORE_Controller
                     $m_dr_items->unit_id=$unit_id[0]->unit_id;
 
                     $m_dr_items->save();
+
+
+                    //update cost on sales invoice
+                    $m_sales_invoice->cost_upon_invoice=$this->get_numeric_value($dr_price[$i]);
+                    $m_sales_invoice->modify(
+                        array(
+                            'product_id'=>$prod_id[$i],
+                            'batch_no'=>$batch_code[$i],
+                            'exp_date'=>date('Y-m-d', strtotime($exp_date[$i]))
+                        )
+                    );
+                    //update also the cost on product master file
+                    $m_products->purchase_cost=$this->get_numeric_value($dr_price[$i]);
+                    $m_products->modify($prod_id[$i]);
+
+
 
                 }
 

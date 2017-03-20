@@ -1083,7 +1083,7 @@ $(document).ready(function(){
                 total=getFloat(suggestion.discounted_price);
             }
             else if(_defLookUp=="6"){
-                total=getFloat(suggestion.purchase_cost);
+                total=getFloat(suggestion.srp_cost);
             }else{
                 total=getFloat(suggestion.sale_price);
             }
@@ -1124,7 +1124,7 @@ $(document).ready(function(){
                     batch_no:suggestion.batch_no,
                     exp_date:suggestion.exp_date,
                     max_qty:suggestion.on_hand_per_batch,
-                    cost_upon_invoice:suggestion.purchase_cost
+                    cost_upon_invoice:suggestion.srp_cost
 
                 }));
             } else {

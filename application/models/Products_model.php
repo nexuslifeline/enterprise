@@ -258,41 +258,57 @@ class Products_model extends CORE_Model {
                 FORMAT(distributor_price,4) as srp_distributor,
                 FORMAT(public_price,4) as srp_public,
                 FORMAT(discounted_price,4) as srp_discounted,
-                FORMAT(purchase_cost,4) as srp_cost,
+                FORMAT(rc.item_cost,4) as srp_cost,
                 (rc.in_qty-IFNULL(sinv.out_qty,0)-IFNULL(iss.out_qty,0)-IFNULL(aoQ.out_qty,0)) as on_hand_per_batch
 
                     FROM
 
                     (
 
-                    SELECT inQ.*,SUM(inQ.receive_qty)as in_qty
+                        SELECT inQ.*,inQ.product_item_cost as item_cost,SUM(inQ.receive_qty)as in_qty
 
- 					FROM
+                        FROM
+                        /**to get the recent cost of each batch, derive query is created to ORDER DESC by date_created**/
+                        (
 
- 					(SELECT dii.product_id,dii.batch_no,dii.exp_date,
-                    CONCAT_WS('-',dii.batch_no,dii.product_id,dii.exp_date)as unq_id,
-                    SUM(dii.dr_qty) as receive_qty
-                    FROM delivery_invoice_items as dii
-                    INNER JOIN delivery_invoice as di
-                    ON dii.dr_invoice_id=di.dr_invoice_id
-                    WHERE di.is_active=TRUE AND di.is_deleted=FALSE
-                    GROUP BY dii.product_id,dii.`batch_no`,dii.exp_date
+                            /*******************************************/
+                            SELECT dii.product_id,dii.batch_no,dii.exp_date,
+                            CONCAT_WS('-',dii.batch_no,dii.product_id,dii.exp_date)as unq_id,
+                            dii.dr_qty as receive_qty,dii.product_item_cost
+
+                            FROM
+
+                            (
 
 
- 					UNION ALL
+
+                                SELECT dii.product_id,dii.batch_no,dii.exp_date,
+                                CONCAT_WS('-',dii.batch_no,dii.product_id,dii.exp_date)as unq_id,
+                                dii.dr_qty,dii.dr_price as product_item_cost,di.date_created
+                                FROM delivery_invoice_items as dii
+                                INNER JOIN delivery_invoice as di
+                                ON dii.dr_invoice_id=di.dr_invoice_id
+                                WHERE di.is_active=TRUE AND di.is_deleted=FALSE
 
 
-  					SELECT aii.product_id,aii.batch_no,aii.exp_date,
-                    CONCAT_WS('-',aii.batch_no,aii.product_id,aii.exp_date)as unq_id,
-                    SUM(aii.adjust_qty) as receive_qty
-                    FROM adjustment_items as aii
-                    INNER JOIN adjustment_info as ai
-                    ON aii.adjustment_id=ai.adjustment_id
-                    WHERE ai.adjustment_type='IN' AND ai.is_active=TRUE AND ai.is_deleted=FALSE
+                                UNION ALL
 
-                    GROUP BY aii.product_id,aii.batch_no,aii.exp_date) as inQ
 
-                    GROUP By inQ.product_id,inQ.batch_no,inQ.exp_date
+                                SELECT aii.product_id,aii.batch_no,aii.exp_date,
+                                CONCAT_WS('-',aii.batch_no,aii.product_id,aii.exp_date)as unq_id,
+                                aii.adjust_qty as receive_qty,aii.adjust_price as product_item_cost,ai.date_created
+                                FROM adjustment_items as aii
+                                INNER JOIN adjustment_info as ai
+                                ON aii.adjustment_id=ai.adjustment_id
+                                WHERE ai.adjustment_type='IN' AND ai.is_active=TRUE AND ai.is_deleted=FALSE
+
+                            )as dii ORDER BY dii.date_created DESC
+
+
+                        /*******************************************/
+                        ) as inQ
+
+                        GROUP By inQ.product_id,inQ.batch_no,inQ.exp_date
 
 
 
