@@ -96,8 +96,8 @@
                                     <div id="div_payable_list">
 
                                         <div class="panel-group panel-default" id="accordionA">
-                                            <div class="panel panel-default" style="border-radius: 6px;border: 1px solid lightgrey;min-height: 670px;">
-                                                <a data-toggle="collapse" data-parent="#accordionA" href="#collapseTwo"><div class="panel-heading" style="background: #2ecc71;border-bottom: 1px solid lightgrey;;"><b style="color:white;font-size: 12pt;"><i class="fa fa-bars"></i> Purchase Invoice Report</b></div></a>
+                                            <div class="panel panel-default" style="border-radius: 6px;border: 1px solid #eeeeee;min-height: 670px;">
+                                                <a data-toggle="collapse" data-parent="#accordionA" href="#collapseTwo"><div class="panel-heading" style="background: #2ecc71;border-bottom: 1px solid #eeeeee;"><b style="color:white;font-size: 12pt;"><i class="fa fa-bars"></i> Purchase Invoice Report</b></div></a>
                                                 <div id="collapseTwo" class="collapse in">
                                                     <div class="panel-body">
                                                         <div style="border: 1px solid #a0a4a5;padding: 1%;border-radius: 5px;padding-bottom: 2%;">
@@ -374,7 +374,7 @@
                         "columns":[
                             { visible:false, targets:[0],data: "supplier_name" },
                             { targets:[1],data: "date_delivered" },
-                            { targets:[2],data: "dr_invoice_no" },
+                            { targets:[2],data: "external_ref_no" },
                             { targets:[3],data: "tax_type" },
                             { targets:[4],data: "product_type" },
                             {
@@ -455,7 +455,7 @@
                     },
                     
                         "columns":[
-                            { "visible": false,targets:[0],data: "dr_invoice_no" },
+                            { "visible": false,targets:[0],data: "external_ref_no" },
                             { targets:[1],data: "supplier_name" },
                             { targets:[2],data: "product_desc" },
                             { targets:[3],data: "product_type" },

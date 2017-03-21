@@ -10,13 +10,13 @@ class Delivery_invoice_model extends CORE_Model {
 
     function get_report_summary($refproduct_id=null,$startDate,$endDate){
         $sql="SELECT 
-            DISTINCT(x.dr_invoice_no) AS invoice_number_of_supplier,
+            DISTINCT(x.external_ref_no) AS invoice_number_of_supplier,
             x.*
             FROM (SELECT
             s.supplier_id,
             s.supplier_name,
             di.date_delivered,
-            di.dr_invoice_no,
+            di.external_ref_no,
             di.total_after_tax,
             tt.tax_type,
             rp.product_type

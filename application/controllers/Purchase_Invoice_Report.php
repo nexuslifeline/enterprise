@@ -105,7 +105,7 @@
 		                	$rows[]=array(
 		                		$x->supplier_name,
 		                		$x->date_delivered,
-		                		$x->dr_invoice_no,
+		                		$x->external_ref_no,
 		                		$x->tax_type,
 		                		$x->product_type,
 		                		$x->total_after_tax
@@ -165,7 +165,7 @@
 		                foreach($purchase_invoice_detailed as $x){
 		                	$rows[]=array(
 		                		$x->supplier_name,
-		                		$x->dr_invoice_no,
+		                		$x->external_ref_no,
 		                		$x->product_desc,
 		                		$x->product_type,
 		                		$x->dr_qty,
@@ -244,7 +244,7 @@
 
                         $data['invoice_numbers']=$m_delivery_invoice->get_list(
                             'date_delivered BETWEEN "'.$startDate.'" AND "'.$endDate.'" AND  delivery_invoice.is_active=TRUE AND delivery_invoice.is_deleted=FALSE',
-                            'DISTINCT(delivery_invoice.dr_invoice_no), delivery_invoice.supplier_id,delivery_invoice.dr_invoice_id,delivery_invoice.supplier_id,suppliers.supplier_name',
+                            'DISTINCT(delivery_invoice.external_ref_no), delivery_invoice.supplier_id,delivery_invoice.dr_invoice_id,delivery_invoice.supplier_id,suppliers.supplier_name',
                             array(
                                 array('suppliers','suppliers.supplier_id=delivery_invoice.supplier_id','left')
                             )
