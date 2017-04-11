@@ -130,6 +130,8 @@
         <div class="tab-container tab-top tab-primary">
             <ul class="nav nav-tabs">
                 <li class="active"><a href="#accounts_integration_setting" data-toggle="tab" style="font-family: tahoma;"><i class="fa fa-gear"></i> Accounts</a></li>
+                <li class=""><a href="#sched_expense_setting" data-toggle="tab" style="font-family: tahoma;"><i class="fa fa-gear"></i> Expense Group (Schedule of Expense)</a></li>
+
                 <li class=""><a href="#account_year_setting" data-toggle="tab" style="font-family: tahoma;"><i class="fa fa-calendar"></i> Accounting Period</a></li>
                 <li class=""><a href="#invoice_counter_setting" data-toggle="tab" style="font-family: tahoma;"><i class="fa fa-code"></i> Invoice Number</a></li>
 
@@ -296,6 +298,42 @@
 
                 </div>
 
+                <div class="tab-pane" id="sched_expense_setting" style="min-height: 300px;">
+                    <br />
+                    Please specify the group of each account :<br />
+                    <table class="custom-design table-striped">
+                        <thead>
+                            <tr>
+                                <th width="10%">Account #</th>
+                                <th width="35%">Account</th>
+                                <th width="12%">Type</th>
+                                <th width="20%">Classification</th>
+                                <th width="17%">Group</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($expenses as $expense){ ?>
+                            <tr data-account-id="<?php echo $expense->account_id; ?>">
+                                <td><?php echo $expense->account_no; ?></td>
+                                <td><?php echo $expense->account_title; ?></td>
+                                <td><?php echo $expense->account_type; ?></td>
+                                <td><?php echo $expense->account_class; ?></td>
+                                <td>
+                                    <div class="div_account_group">
+                                        <select class="account_group form-control">
+                                            <option value="1" <?php echo ($expense->group_id==1?"selected":""); ?>   >General and Administrative</option>
+                                            <option value="2" <?php echo ($expense->group_id==2?"selected":""); ?>   >Selling Expense</option>
+                                        </select>
+                                    </div>
+                                    <div class="div_account_spinner" style="display: none;">
+                                        <center><img src="assets/img/loader/facebook.gif" /></center>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php } ?>
+                        </tbody>
+                    </table><br /><br />
+                </div>
 
                 <div class="tab-pane" id="account_year_setting" style="min-height: 300px;">
 
@@ -619,6 +657,35 @@ $(document).ready(function(){
 
             $('#btn_close_accounting').click(function(){
                 $('#modal_close_accounting_period').modal('show');
+            });
+
+            $('.account_group').change(function(){
+                var r=$(this).closest('tr');
+                var group=$(this).val();
+
+                var _data=[];
+                _data.push({name:"account_id",value: r.data('account-id')});
+                _data.push({name:"group_id",value: group});
+
+                r.find('.div_account_spinner').show();
+                r.find('.div_account_group').hide();
+
+                $.ajax({
+                    "dataType":"json",
+                    "type":"POST",
+                    "url":"Account_integration/transaction/save-expense-group",
+                    "data":_data,
+                    "beforeSend:" : function(){
+
+
+                    },
+                    "success" : function(response){
+                        //showNotification(response);
+                    }
+                }).always(function(){
+                    r.find('.div_account_spinner').hide();
+                    r.find('.div_account_group').show();
+                });
             });
 
 

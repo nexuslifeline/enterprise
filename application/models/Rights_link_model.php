@@ -56,7 +56,10 @@ class Rights_link_model extends CORE_Model{
                                           (39,'9','9-8','Account Subsidiary'),
                                           (40,'9','9-7','Supplier Subsidiary'),
                                           (41,'9','9-5','AP Schedule'),
-                                          (42,'8','8-4','Purchase Invoice Report')
+                                          (42,'8','8-4','Purchase Invoice Report'),
+                                          (43,'9','9-9','Cost of Goods Sold'),
+                                          (44,'6','6-8','Create Recurring Journal Template'),
+                                          (45,'9','9-10','Schedule of Expense')
 
                                           ON DUPLICATE KEY UPDATE
 

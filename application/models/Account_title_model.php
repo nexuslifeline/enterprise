@@ -56,20 +56,46 @@ class Account_title_model extends CORE_Model{
 
 
                 FROM (account_titles as at LEFT JOIN `account_classes` as ac ON at.`account_class_id`=ac.account_class_id)
+
                 LEFT JOIN
 
                 (
 
-                SELECT ja.* FROM journal_accounts as ja INNER
-                JOIN journal_info as ji ON ja.journal_id=ji.journal_id
-                WHERE ji.is_active AND ji.is_deleted=FALSE
-                ".($start!=null&&$end!=null?" AND ji.date_txn BETWEEN '$start' AND '$end'":"")."
+                    SELECT ja.journal_id,ja.account_id,
+                    SUM(dr_amount)as dr_amount,
+                    SUM(cr_amount)as cr_amount
+                    FROM journal_accounts as ja
+                    INNER JOIN journal_info as ji ON ja.journal_id=ji.journal_id
+
+                    LEFT JOIN
+
+                            (
+
+                                SELECT jax.journal_id FROM journal_accounts as jax WHERE jax.account_id IN(
+                                    SELECT atx.account_id FROM account_titles as atx
+                                    INNER JOIN account_classes as ac ON ac.`account_class_id`=atx.account_class_id
+                                    WHERE atx.is_deleted=TRUE OR ac.is_deleted=TRUE
+                                    )
+
+                                GROUP BY jax.journal_id
+
+                            )as lQ ON lQ.journal_id=ja.journal_id
+
+
+                    WHERE ji.is_active=TRUE AND ji.is_deleted=FALSE AND ISNULL(lQ.journal_id)
+
+
+                    ".($start!=null&&$end!=null?" AND ji.date_txn BETWEEN '$start' AND '$end'":"")."
+
+
+
+                    GROUP BY ja.account_id
 
                 )as ja
 
                 ON at.account_id=ja.account_id
 
-
+                WHERE at.is_deleted=FALSE AND at.is_active=TRUE AND ac.is_active=TRUE AND ac.is_deleted=FALSE
 
                 GROUP BY at.account_id";
 

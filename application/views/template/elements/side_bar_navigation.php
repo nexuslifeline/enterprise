@@ -85,6 +85,7 @@
                                 <li class="<?php echo (in_array('6-5',$this->session->user_rights)?'':'hidden'); ?>"><a href="users">Create User Account</a></li>
                                 <li class="<?php echo (in_array('6-6',$this->session->user_rights)?'':'hidden'); ?>"><a href="company">Setup Company Info</a></li>
                                 <li class="<?php echo (in_array('6-7',$this->session->user_rights)?'':'hidden'); ?>"><a href="Check_layout">Setup Check Layout</a></li>
+                                <li class="<?php echo (in_array('6-8',$this->session->user_rights)?'':'hidden'); ?>"><a href="Recurring_template">Recurring Template</a></li>
 
                             </ul>
                         </li>
@@ -99,6 +100,8 @@
                                 <li class="<?php echo (in_array('9-6',$this->session->user_rights)?'':'hidden'); ?>"><a href="Customer_Subsidiary">Customer Subsidiary</a></li>
                                 <li class="<?php echo (in_array('9-7',$this->session->user_rights)?'':'hidden'); ?>"><a href="Supplier_Subsidiary">Supplier Subsidiary</a></li>
                                 <li class="<?php echo (in_array('9-8',$this->session->user_rights)?'':'hidden'); ?>"><a href="Account_Subsidiary">Account Subsidiary</a></li>
+                                <li class="<?php echo (in_array('9-9',$this->session->user_rights)?'':'hidden'); ?>"><a href="Cogs">Cost of Goods Sold</a></li>
+                                <li class="<?php echo (in_array('9-10',$this->session->user_rights)?'':'hidden'); ?>"><a href="Schedule_expense">Schedule of Expense</a></li>
                             </ul>
                         </li>
 

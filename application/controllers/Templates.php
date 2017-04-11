@@ -59,6 +59,7 @@ class Templates extends CORE_Controller {
         $this->load->model('Payable_payment_list_model');
 
         $this->load->model('Check_layout_model');
+        $this->load->model('Account_title_model');
 
         $this->load->library('M_pdf');
     }
@@ -1728,6 +1729,10 @@ class Templates extends CORE_Controller {
                 $data['title']="Print Check";
 
                 $m_journal_info=$this->Journal_info_model;
+
+                $m_journal_info->check_status=1; //mark as issued
+                $m_journal_info->modify($journal_id);
+
                 $check_info=$m_journal_info->get_list($journal_id,
 
                     array(
@@ -1833,35 +1838,79 @@ class Templates extends CORE_Controller {
                 $account_Id=$this->input->get('accountId',TRUE);
                 $start_Date=date('Y-m-d',strtotime($this->input->get('startDate',TRUE)));
                 $end_Date=date('Y-m-d',strtotime($this->input->get('endDate',TRUE)));
+                $includeChild=date('Y-m-d',strtotime($this->input->get('includeChild',TRUE)));
 
                 $m_journal_info=$this->Journal_info_model;
                 $m_company_info=$this->Company_model;
+                $m_accounts=$this->Account_title_model;
 
-                $journal_info=$m_journal_info->get_list(
-                    array('journal_info.is_deleted'=>FALSE, 'journal_accounts.account_id'=>$account_Id),
-                    'supplier_name, customer_name, account_title',
-                    array(
-                        array('suppliers','suppliers.supplier_id=journal_info.supplier_id','left'),
-                        array('customers','customers.customer_id=journal_info.customer_id','left'),
-                        array('journal_accounts','journal_accounts.journal_id=journal_info.journal_id','left'),
-                        array('account_titles','account_titles.account_id=journal_accounts.account_id','left')
-                    )
-                );
+
 
                 $company_info=$m_company_info->get_list();
-
                 $data['company_info']=$company_info[0];
-                $data['subsidiary_info']=$journal_info[0];
-                $data['supplier_subsidiary']=$m_journal_info->get_account_subsidiary($account_Id,$start_Date,$end_Date);
 
-                if ($type == 'preview' || $type == null) {
-                    $pdf = $this->m_pdf->load("A4-L");
-                    $content=$this->load->view('template/account_subsidiary_report',$data,TRUE);
+                if($includeChild==0){ //load the template use for standard
+
+                    $account_info=$m_accounts->get_list(
+                        $account_Id,
+
+                        array(
+                            'account_titles.account_title',
+                            'at.account_title as parent_title'
+                        ),
+
+                        array(
+                            array('account_titles as at','at.account_id=account_titles.grand_parent_id','left')
+                        )
+
+                    );
+
+                    $data['company_info']=$company_info[0];
+                    $data['subsidiary_info']=$account_info[0];
+                    $data['supplier_subsidiary']=$m_journal_info->get_account_subsidiary($account_Id,$start_Date,$end_Date,$includeChild);
+
+                    $this->load->view('template/account_subsidiary_report',$data);
+
+
+                }else{
+                    $account_info=$m_accounts->get_list(
+                        $account_Id,
+                        array(
+                            'account_titles.grand_parent_id',
+                            'at.account_title as grand_parent_title'
+                        ),
+                        array(
+                            array('account_titles as at','at.account_id=account_titles.grand_parent_id','left')
+                        )
+                    );
+                    $grand_parent_id=$account_info[0]->grand_parent_id;
+
+                    //get all accounts with grand parent id
+                    $data['grand_parent_title']=$account_info[0]->grand_parent_title;
+                    $data['accounts']=$m_accounts->get_list(
+
+                            array('grand_parent_id'=>$grand_parent_id),
+
+                            array(
+                                'account_titles.*',
+                                'ac.account_type_id'
+                            ),
+
+                            array(
+                                array('account_classes as ac','ac.account_class_id=account_titles.account_class_id','left')
+                            )
+
+                        );
+                    $data['transactions']=$m_journal_info->get_grand_parent_account_subsidiary($start_Date,$end_Date);
+
+                    $this->load->view('template/account_subsidiary_with_childs',$data);
+
                 }
 
-                $pdf->setFooter('{PAGENO}');
-                $pdf->WriteHTML($content);
-                $pdf->Output();
+
+
+
+
             break;
 
             case 'account-receivable-schedule':

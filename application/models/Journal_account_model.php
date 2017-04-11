@@ -117,10 +117,6 @@ class Journal_account_model extends CORE_Model{
     }
 
 
-
-
-
-
     function get_account_schedule($account_id,$as_of_date,$particular_tye='C'){
 
         $as_of_date=date('Y-m-d',strtotime($as_of_date));
@@ -251,7 +247,6 @@ class Journal_account_model extends CORE_Model{
 
         return $this->db->query($sql)->result();
     }
-
 
 
 }
