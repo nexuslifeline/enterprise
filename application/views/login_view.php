@@ -67,7 +67,7 @@
 							</div>
 							<div class="form-group mb-n">
 								<div class="col-xs-12">
-									<a href="#" class="pull-left">Forgot password?</a>
+									<a href="#" class="pull-left">Forgot?</a>
 									<div class="checkbox-inline icheck pull-right p-n">
 										<label for="">
 											<input type="checkbox"></input>
