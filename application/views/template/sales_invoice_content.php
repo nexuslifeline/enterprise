@@ -1,47 +1,55 @@
-<link rel="stylesheet" type="text/css" href="assets/css/style-blessed3ef7a.css">
+<!-- <link rel="stylesheet" type="text/css" href="assets/css/style-blessed3ef7a.css"> -->
 <div class="row">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-xs-12">
-                <h1 class="text-center" style="font-weight: 600;">EVR Vet-Options Corporation</h1>
+            <div class="col-xs-12 text-center">
+                <h1 style="font-weight: 600;">EVR Vet-Options Corporation</h1>
+                <span><?php echo $company_info->company_address; ?></span><br>
+                <span>Tel nos.: <?php echo $company_info->landline; ?></span><br>
+                <span>VAT REG. TIN NO <?php echo $company_info->tin_no; ?></span>
             </div>
         </div>
         <div class="row">
-            <div class="col-xs-12">
+            <div class="col-xs-6">
                 <?php if ($_GET['category'] == 1) { ?>
-                    <h4 style="font-weight: 400;">SALES INVOICE</h4>
+                    <h4 style="font-weight: 700;">SALES INVOICE</h4>
                 <?php } else { ?>
-                    <h4 style="font-weight: 400;">DELIVERY RECEIPT</h4>
+                    <h4 style="font-weight: 700;">DELIVERY RECEIPT</h4>
+                <?php } ?>
+            </div>
+            <div class="col-xs-6 text-right">
+                <?php if ($_GET['category'] == 1) { ?>
+                    <h4><span style="font-weight: 700;">No. </span><span style="color: red;"><?php echo $sales_info->sales_inv_no; ?></span></h4>
                 <?php } ?>
             </div>
         </div>
-            <table class="" width="100%" style="border: 2px solid #757575">
+            <table class="" width="100%" style="border: 2px solid #757575;">
                 <tr>
                     <td class="table-cellpadding" width="15%">Sold To :</td>
-                    <td class="table-cellpadding" width="30%"><strong><?php if ($_GET['category'] == 1) { echo $sales_info->customer_name; } else { echo $sales_info->department_name; }?></strong></td>
+                    <td class="table-cellpadding" style="border-bottom: 1px solid  #757575;" width="30%"><strong><?php if ($_GET['category'] == 1) { echo $sales_info->customer_name; } else { echo $sales_info->department_name; }?></strong></td>
                     <td class="table-cellpadding" width="16%">OSCA/PWD ID No. :</td>
-                    <td class="table-cellpadding" width="16%"></td>
+                    <td class="table-cellpadding" style="border-bottom: 1px solid  #757575;"     width="16%"></td>
                     <td class="table-cellpadding" colspan="2" width="33%">CardHolder's Signature : </td>
                 </tr>
                 <tr>
                     <td class="table-cellpadding" colspan="2"></td>
                     <td class="table-cellpadding">REF NO. :</td>
-                    <td class="table-cellpadding"><strong><sup><?php echo $sales_info->so_no.' '.$sales_info->acr_name; ?></sup></strong></td>
+                    <td class="table-cellpadding" style="border-bottom: 1px solid  #757575;"><strong><?php echo $sales_info->so_no.' '.$sales_info->acr_name; ?></strong></td>
                     <td class="table-cellpadding" colspan="2"></td>
                 </tr>
                 <tr>
                     <td class="table-cellpadding">ADDRESS :</td>
-                    <td class="table-cellpadding"><strong><?php echo $sales_info->address; ?></strong></td>
+                    <td class="table-cellpadding" style="border-bottom: 1px solid  #757575;"><strong><?php echo $sales_info->address; ?></strong></td>
                     <td class="table-cellpadding">DATE :</td>
-                    <td class="table-cellpadding" colspan="3" width="16%"><strong><?php echo  date_format(new DateTime($sales_info->date_invoice),"m/d/Y"); ?></strong></td>
+                    <td class="table-cellpadding" style="border-bottom: 1px solid  #757575;" colspan="3" width="16%"><strong><?php echo  date_format(new DateTime($sales_info->date_invoice),"m/d/Y"); ?></strong></td>
                 </tr>
                 <tr>
                     <td class="table-cellpadding">BUSINESS STYLE :</td>
-                    <td class="table-cellpadding"></td>
+                    <td class="table-cellpadding" style="border-bottom: 1px solid  #757575;"></td>
                     <td class="table-cellpadding">TERMS :</td>
-                    <td class="table-cellpadding"></td>
+                    <td class="table-cellpadding" style="border-bottom: 1px solid  #757575;"></td>
                     <td class="table-cellpadding" width="6%">TIN :</td>
-                    <td class="table-cellpadding" width="30%"></td>
+                    <td class="table-cellpadding" style="border-bottom: 1px solid  #757575;" width="30%"></td>
                 </tr>
             </table>
         </div>
@@ -147,9 +155,9 @@
                     <td class="table-cellpadding" width="70%">RECEIVED the above-mentioned quantity and merchandise in good order, condition and to my/our full and complete satisfaction. I/We agree to the conditions stipulated therein.</td>
                 </tr>
                 <tr>
-                    <td style="border-bottom: 1px solid #404040;">&nbsp;</td>
-                    <td style="border-bottom: 1px solid #404040;">&nbsp;</td>
-                    <td>&nbsp;</td>
+                    <td style="padding-left: 5px; padding-right: 5px;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+                    <td style="padding-left: 5px; padding-right: 5px;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
+                    <td style="padding-left: 5px; padding-right: 5px;"><u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</u></td>
                 </tr>
                 <tr style="text-align: center;">
                     <td class="table-cellpadding">Prepared By</td>

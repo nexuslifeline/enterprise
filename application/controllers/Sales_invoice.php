@@ -102,12 +102,14 @@ class Sales_invoice extends CORE_Controller
 
     function transaction($txn = null,$id_filter=null) {
         switch ($txn){
-            case 'current-invoice-no':
-                $user_id=$this->session->user_id;
-                $invoice_no=$this->get_current_invoice_no($user_id);
-                $response['invoice_no']=$invoice_no;
-                echo json_encode($response);
-                break;
+            // case 'current-invoice-no':
+            //     $m_invoice=$this->Sales_invoice_model;
+            //     // $user_id=$this->session->user_id;
+            //     // $invoice_no=$this->get_current_invoice_no($user_id);
+            //     // $response['invoice_no']=$invoice_no;
+            //     $current_inv_no=$this->db->select('sales_inv_no')->where('inv_type=1')->order_by('sales_inv_no','desc')->limit(1)->get('sales_invoice')->row('sales_inv_no');
+            //     echo json_encode($current_inv_no + 1);
+            //     break;
 
             case 'current-items':
                 $type=$this->input->get('type');
@@ -115,6 +117,40 @@ class Sales_invoice extends CORE_Controller
                 echo json_encode($this->Products_model->get_current_item_list($description,$type));
                 break;
 
+            case 'print':
+                $m_sales_invoice=$this->Sales_invoice_model;
+                $m_sales_invoice_items=$this->Sales_invoice_item_model;
+
+                $info=$m_sales_invoice->get_list(
+                    $id_filter,
+                    'sales_invoice.*,departments.department_name,customers.customer_name, sales_invoice.address,sales_order.so_no,salesperson.*',
+                    array(
+                        array('departments','departments.department_id=sales_invoice.issue_to_department','left'),
+                        array('customers','customers.customer_id=sales_invoice.customer_id','left'),
+                        array('sales_order','sales_order.sales_order_id=sales_invoice.sales_order_id','left'),
+                        array('salesperson','salesperson.salesperson_id=sales_invoice.salesperson_id','left')
+                    )
+                );
+
+                $company_info=$this->Company_model->get_list();
+
+                $data['company_info']=$company_info[0];
+
+                $data['sales_info']=$info[0];
+                $data['sales_invoice_items']=$m_sales_invoice_items->get_list(
+                    array('sales_invoice_items.sales_invoice_id'=>$id_filter),
+                    'sales_invoice_items.*,products.product_desc,products.size,units.unit_name',
+                    array(
+                        array('products','products.product_id=sales_invoice_items.product_id','left'),
+                        array('units','units.unit_id=sales_invoice_items.unit_id','left')
+                    )
+                );
+
+                $data['_def_css_files'] = $this->load->view('template/assets/css_files', '', TRUE);
+                $data['_def_js_files'] = $this->load->view('template/assets/js_files', '', TRUE);
+
+                $this->load->view('template/sales_invoice_content_print',$data);
+            break;
 
             case 'list':  //this returns JSON of Issuance to be rendered on Datatable
                 $m_invoice=$this->Sales_invoice_model;
@@ -157,7 +193,9 @@ class Sales_invoice extends CORE_Controller
 
 
                 $user_id=$this->session->user_id;
-                $invoice_no=$this->get_current_invoice_no($user_id);
+
+                //add 1 to the last invoice number
+                $invoice_no=$this->get_current_sales_inv_no() + 1;
 
                 //validate if all required fields are supplied, and duplication
                 if($this->validate_record($invoice_no)){
@@ -281,7 +319,6 @@ class Sales_invoice extends CORE_Controller
 
                                 echo json_encode($response);
                             }
-
                 } //end of validation
 
                 break;
@@ -509,7 +546,6 @@ class Sales_invoice extends CORE_Controller
         );
     }
 
-
     function get_so_status($id){
         //NOTE : 1 means open, 2 means Closed, 3 means partially invoice
         $m_sales_invoice=$this->Sales_invoice_model;
@@ -542,8 +578,11 @@ class Sales_invoice extends CORE_Controller
         return true;
     }
 
+    function get_current_sales_inv_no() {
+        $current_inv_no=$this->db->select('sales_inv_no')->where('inv_type=1')->order_by('sales_inv_no','desc')->limit(1)->get('sales_invoice')->row('sales_inv_no');
 
-
+        return $current_inv_no;
+    }
 
     //return current invoice number based on the range provided
     function get_current_invoice_no($user_id){

@@ -159,6 +159,16 @@
             resize: none;
         }
 
+        input[type=checkbox] {
+            margin-left: 10px;
+          /* Double-sized Checkboxes */
+          -ms-transform: scale(1.5); /* IE */
+          -moz-transform: scale(1.5); /* FF */
+          -webkit-transform: scale(1.5); /* Safari and Chrome */
+          -o-transform: scale(1.5); /* Opera */
+          padding: 10px;
+        }
+
         .modal-body p {
             margin-left: 20px !important;
         }
@@ -248,10 +258,11 @@
 <div class="row ">
     <div class="container-fluid">
     <form id="frm_deliveries" role="form" class="form-horizontal">
-        <h4 style="margin-bottom: 6px;"><b>Invoice # : <span id="span_invoice_no">INV-XXXX</span></b></h4>
-
-
-        <div style="border: 1px solid #a0a4a5;padding: 1%;border-radius: 5px;">
+        <h4 style="margin-bottom: 6px; margin-left: 10px;"><b>Invoice # : <span id="span_invoice_no">INV-XXXX</span></b></h4>
+        <!-- <div class="check-div">
+            <input class="" type="checkbox" name="chk_save"><label for="chk_save" style="color: #3f51b5;"><strong>&nbsp;&nbsp;Update Cost on Sales Invoice</strong></label>
+        </div>
+ -->        <div style="border: 1px solid #a0a4a5;padding: 1%;border-radius: 5px;">
             <div class="row">
                 <div class="col-sm-3">
                     Invoice #:<br />
@@ -1234,6 +1245,7 @@ $(document).ready(function(){
             clearFields($('#frm_deliveries'));
             _cboSuppliers.select2('val',null);
             _cboTaxType.select2('val',null);
+            $('.check-div').hide();
             showList(false);
         });
 
@@ -1411,7 +1423,7 @@ $(document).ready(function(){
             _selectedID=data.dr_invoice_id;
 
 
-            $('textarea[name="remarks"]').val(data.remarks);
+            $('textarea[name="remarks"]').html(data.remarks);
             $('#cbo_suppliers').select2('val',data.supplier_id);
             $('#cbo_departments').select2('val',data.department_id);
 
@@ -1584,8 +1596,6 @@ $(document).ready(function(){
         $('#btn_cancel').click(function(){
             showList(true);
         });
-
-
 
         $('#btn_save').click(function(){
             
@@ -1782,8 +1792,6 @@ $(document).ready(function(){
             type:  obj.stat
         });
     };
-
-
 
     var showSpinningProgress=function(e){
         $(e).toggleClass('disabled');

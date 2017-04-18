@@ -34,6 +34,15 @@ class Account_integration extends CORE_Controller
         $current_accounts= $this->Account_integration_model->get_list();
         $data['current_accounts'] =$current_accounts[0];
 
+        $data['users_counter']=$this->Invoice_counter_model->get_list(
+            'ua.is_deleted=false AND ua.is_active=TRUE',
+            'invoice_counter.*, CONCAT(ua.user_fname, " ", ua.user_lname) AS user_fullname, ug.user_group',
+            array(
+                array('user_accounts AS ua','ua.user_id=invoice_counter.user_id','left'),
+                array('user_groups AS ug','ug.user_group_id=ua.user_group_id','left')
+            )
+        );
+
         //grand parent account only
         $data['expenses']=$this->Account_title_model->get_list(
             'account_titles.is_active=1 AND account_titles.is_deleted=0 AND at.account_type_id=5 AND account_titles.account_id IN(SELECT x.grand_parent_id FROM account_titles as x WHERE x.parent_account_id=0)',

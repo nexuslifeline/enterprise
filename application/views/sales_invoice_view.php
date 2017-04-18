@@ -623,7 +623,15 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header " style="padding: 5px !important;">
-                <h2 style="color:white; padding-left: 10px;">Sales Invoice</h2>
+                <h3 style="color:white; padding-left: 10px;">Preview Sales Invoice</h3>
+                <button id="btn_print" class="btn btn-primary pull-right" style="position: absolute; top: 20px; left: 76%; border: none; text-shadow: 0px 0px 7px rgba(150, 150, 150, 1);background: rgba(73,155,234,1);
+background: -moz-linear-gradient(top, rgba(73,155,234,1) 0%, rgba(32,124,229,1) 100%);
+background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(73,155,234,1)), color-stop(100%, rgba(32,124,229,1)));
+background: -webkit-linear-gradient(top, rgba(73,155,234,1) 0%, rgba(32,124,229,1) 100%);
+background: -o-linear-gradient(top, rgba(73,155,234,1) 0%, rgba(32,124,229,1) 100%);
+background: -ms-linear-gradient(top, rgba(73,155,234,1) 0%, rgba(32,124,229,1) 100%);
+background: linear-gradient(to bottom, rgba(73,155,234,1) 0%, rgba(32,124,229,1) 100%);
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#499bea', endColorstr='#207ce5', GradientType=0 );"><i class="fa fa-print"></i> Print Sales Invoice</button>
             </div>
             <div class="modal-body">
                 <div class="container-fluid" style="overflow: scroll; width: 100%;">
@@ -883,7 +891,7 @@
 
 $(document).ready(function(){
     var _lookUpPrice;
-    var dt; var _txnMode; var _selectedID; var _selectRowObj; var _cboDepartments; var _cboCustomers; var dt_so, _productType, _cboSalesperson;
+    var dt; var _txnMode; var _selectedID; var _selectRowObj; var _cboDepartments; var _cboCustomers; var dt_so, _productType, _cboSalesperson, _selectedPrint; 
     var oTableItems={
         qty : 'td:eq(0)',
         unit_price : 'td:eq(3)',
@@ -1175,11 +1183,13 @@ $(document).ready(function(){
                 }).done(function(response){
                     $("#sales_invoice").html(response);
                     $("#modal_sales_invoice").modal('show');
+                    _selectedPrint=d.sales_invoice_id;
                 });
-        
-        } );
+        });
 
-
+        $('#btn_print').click(function(){
+            window.open("Sales_invoice/transaction/print/"+ _selectedPrint);
+        });
 
         $('#link_browse').click(function(){
             $('#btn_receive_so').click();
@@ -1409,20 +1419,20 @@ $(document).ready(function(){
             $('#cboLookupPrice').select2('val', 1);
             reComputeTotal(); //this is to make sure, display summary are recomputed as 0
 
-            $.ajax({
-                "dataType":"json",
-                "type":"POST",
-                "url":"Sales_invoice/transaction/current-invoice-no"
-            }).done(function(response){
-                if(response.stat=="error"){
-                    $('#span_invoice_no').html('<span style="color:red;font-family:tahoma;">Please set invoice number.</span>');
-                    showNotification(response);
-                }else{
-                    $('#span_invoice_no').html(response.invoice_no);
-                    $('#span_invoice_no').attr('contenteditable',false);
-                }
+            // $.ajax({
+            //     "dataType":"json",
+            //     "type":"POST",
+            //     "url":"Sales_invoice/transaction/current-invoice-no"
+            // }).done(function(response){
+            //     if(response.stat=="error"){
+            //         $('#span_invoice_no').html('<span style="color:red;font-family:tahoma;">Please set invoice number.</span>');
+            //         showNotification(response);
+            //     }else{
+            //         $('#span_invoice_no').html(response.invoice_no);
+            //         $('#span_invoice_no').attr('contenteditable',false);
+            //     }
 
-            });
+            // });
 
 
         });

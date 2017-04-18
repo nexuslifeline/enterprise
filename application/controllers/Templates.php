@@ -65,7 +65,7 @@ class Templates extends CORE_Controller {
     }
 
     public function index() {
-
+        
     }
 
 
@@ -382,6 +382,10 @@ class Templates extends CORE_Controller {
                     )
                 );
 
+                $company_info=$this->Company_model->get_list();
+
+                $data['company_info']=$company_info[0];
+
                 $data['sales_info']=$info[0];
                 $data['sales_invoice_items']=$m_sales_invoice_items->get_list(
                     array('sales_invoice_items.sales_invoice_id'=>$filter_value),
@@ -395,7 +399,7 @@ class Templates extends CORE_Controller {
                 //show only inside grid with menu button
                 if($type=='fullview'||$type==null){
                     echo $this->load->view('template/sales_invoice_content',$data,TRUE);
-                    echo $this->load->view('template/sales_invoice_content_menus',$data,TRUE);
+                    // echo $this->load->view('template/sales_invoice_content_menus',$data,TRUE);
                 }
 
                 //show only inside grid with menu button
@@ -404,8 +408,8 @@ class Templates extends CORE_Controller {
                 }
 
                 //show only inside grid without menu button
-                if($type=='contentview'){
-                    echo $this->load->view('template/sales_invoice_content',$data,TRUE);
+                if($type=='print'){
+                    echo $this->load->view('template/sales_invoice_content_print',$data,TRUE);
                 }
 
                 if($type=='dr'){
