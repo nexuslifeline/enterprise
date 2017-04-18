@@ -1419,20 +1419,20 @@ $(document).ready(function(){
             $('#cboLookupPrice').select2('val', 1);
             reComputeTotal(); //this is to make sure, display summary are recomputed as 0
 
-            // $.ajax({
-            //     "dataType":"json",
-            //     "type":"POST",
-            //     "url":"Sales_invoice/transaction/current-invoice-no"
-            // }).done(function(response){
-            //     if(response.stat=="error"){
-            //         $('#span_invoice_no').html('<span style="color:red;font-family:tahoma;">Please set invoice number.</span>');
-            //         showNotification(response);
-            //     }else{
-            //         $('#span_invoice_no').html(response.invoice_no);
-            //         $('#span_invoice_no').attr('contenteditable',false);
-            //     }
+            $.ajax({
+                "dataType":"json",
+                "type":"POST",
+                "url":"Sales_invoice/transaction/current-invoice-no"
+            }).done(function(response){
+                if(response.stat=="error"){
+                    $('#span_invoice_no').html('<span style="color:red;font-family:tahoma;">Please set invoice number.</span>');
+                    showNotification(response);
+                }else{
+                    $('#span_invoice_no').html(response.invoice_no);
+                    $('#span_invoice_no').attr('contenteditable',false);
+                }
 
-            // });
+            });
 
 
         });

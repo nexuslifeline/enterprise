@@ -102,14 +102,14 @@ class Sales_invoice extends CORE_Controller
 
     function transaction($txn = null,$id_filter=null) {
         switch ($txn){
-            // case 'current-invoice-no':
-            //     $m_invoice=$this->Sales_invoice_model;
-            //     // $user_id=$this->session->user_id;
-            //     // $invoice_no=$this->get_current_invoice_no($user_id);
-            //     // $response['invoice_no']=$invoice_no;
-            //     $current_inv_no=$this->db->select('sales_inv_no')->where('inv_type=1')->order_by('sales_inv_no','desc')->limit(1)->get('sales_invoice')->row('sales_inv_no');
-            //     echo json_encode($current_inv_no + 1);
-            //     break;
+            case 'current-invoice-no':
+                $m_invoice=$this->Sales_invoice_model;
+                $user_id=$this->session->user_id;
+                $invoice_no=$this->get_current_invoice_no($user_id);
+                $response['invoice_no']=$invoice_no;
+
+                echo json_encode($response);
+            break;
 
             case 'current-items':
                 $type=$this->input->get('type');
@@ -149,7 +149,7 @@ class Sales_invoice extends CORE_Controller
                 $data['_def_css_files'] = $this->load->view('template/assets/css_files', '', TRUE);
                 $data['_def_js_files'] = $this->load->view('template/assets/js_files', '', TRUE);
 
-                $this->load->view('template/sales_invoice_content_print',$data);
+                $this->load->view('template/sales_invoice_content_html',$data);
             break;
 
             case 'list':  //this returns JSON of Issuance to be rendered on Datatable
@@ -195,7 +195,9 @@ class Sales_invoice extends CORE_Controller
                 $user_id=$this->session->user_id;
 
                 //add 1 to the last invoice number
-                $invoice_no=$this->get_current_sales_inv_no() + 1;
+                //$invoice_no=$this->get_current_sales_inv_no() + 1;
+
+                $invoice_no=$this->get_current_invoice_no($user_id);
 
                 //validate if all required fields are supplied, and duplication
                 if($this->validate_record($invoice_no)){
