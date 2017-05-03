@@ -23,7 +23,7 @@ class Products_model extends CORE_Model {
 
     //function to get the Merchandise Inventory on COST OF GOODS SOLD REPORt
     function get_inventory_costing($as_of_date,$department=null){
-        $sql="SELECT n.*,FORMAT((n.BalanceQty*n.AvgCost),4)as TotalAvgCost
+        $sql="SELECT n.*,FORMAT(n.AvgCost,4)as AvgCost,FORMAT((n.BalanceQty*n.AvgCost),4)as TotalAvgCost
                 FROM
                 (SELECT
 
@@ -36,7 +36,7 @@ class Products_model extends CORE_Model {
                 (SELECT
 
                 p.product_id,p.`product_desc`,
-                FORMAT(IFNULL(recQuery.AvgCost,0),4) as AvgCost,
+                IFNULL((recQuery.AvgCost+adjInQuery.AdjAvgCost)/2,0) as AvgCost,
                 IFNULL(recQuery.ReceiveQty,0)as ReceiveQty,
                 IFNULL(adjInQuery.AdjInQty,0) as AdjInQty,
                 IFNULL(adjOutQuery.AdjOutQty,0) as AdjOutQty,
@@ -75,7 +75,8 @@ class Products_model extends CORE_Model {
                 SELECT
 
                 aii.product_id,
-                SUM(aii.adjust_qty)as AdjInQty
+                SUM(aii.adjust_qty)as AdjInQty,
+                 AVG(IF(aii.adjust_price>0 AND aii.adjust_qty>0,aii.adjust_price,NULL)) as AdjAvgCost /**get the average of stock in adjustment**/
 
                 FROM adjustment_items as aii
                 INNER JOIN adjustment_info as ai
@@ -156,7 +157,7 @@ class Products_model extends CORE_Model {
                 ) as salesQuery ON salesQuery.product_id=p.product_id
 
 
-                WHERE p.is_deleted=0) as m)as n ORDER BY product_desc";
+                WHERE p.is_deleted=0) as m)as n WHERE n.BalanceQty<>0 ORDER BY product_desc";
 
             return $this->db->query($sql)->result();
 

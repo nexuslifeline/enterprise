@@ -16,6 +16,8 @@ class Products extends CORE_Controller
         $this->load->model('Refproduct_model');
         $this->load->model('Suppliers_model');
         $this->load->model('Tax_model');
+        $this->load->model('Sales_invoice_model');
+        $this->load->model('Sales_invoice_item_model');
     }
 
     public function index() {
@@ -198,6 +200,60 @@ class Products extends CORE_Controller
                 $data['product_id']=$product_id;
                 $this->load->view('Template/product_history_menus',$data);
                 $this->load->view('Template/product_history',$data);
+                break;
+            case 'get-current-invoice-cost':
+                $m_inv=$this->Sales_invoice_model;
+                $m_inv_items=$this->Sales_invoice_item_model;
+
+                $inv_no=$this->input->post('refno');
+                $expdate=$this->input->post('expdate');
+                $bid=$this->input->post('bid');
+                $pid=$this->input->post('pid');
+
+                $inv_id=$m_inv->get_list(array('sales_inv_no'=>$inv_no));
+                $id=$inv_id[0]->sales_invoice_id;
+
+                $cost=$m_inv_items->get_list(array(
+                    'product_id'=>$pid,
+                    'batch_no'=>$bid,
+                    'exp_date'=>$expdate,
+                    'sales_invoice_id'=>$id
+                ));
+
+                $response['cost']=$cost[0]->cost_upon_invoice;
+                echo json_encode($response);
+                break;
+            case 'update-cost':
+                $m_inv=$this->Sales_invoice_model;
+                $m_inv_items=$this->Sales_invoice_item_model;
+
+                $inv_no=$this->input->post('refno');
+                $expdate=$this->input->post('expdate');
+                $bid=$this->input->post('bid');
+                $pid=$this->input->post('pid');
+                $cost=$this->get_numeric_value($this->input->post('cost'));
+
+                $inv_id=$m_inv->get_list(array('sales_inv_no'=>$inv_no));
+                $id=$inv_id[0]->sales_invoice_id;
+
+                $m_inv_items->cost_upon_invoice=$cost;
+                $m_inv_items->modify(array(
+                    'product_id'=>$pid,
+                    'batch_no'=>$bid,
+                    'exp_date'=>$expdate,
+                    'sales_invoice_id'=>$id
+                ));
+
+                $response['title']='Success!';
+                $response['stat']='success';
+                $response['id']=$id;
+                $response['pid']=$pid;
+                $response['exp']=$expdate;
+                $response['bid']=$bid;
+                $response['cost']=$cost;
+                $response['msg']='Product cost on invoice # : '.$inv_no.' successfully updated.';
+                echo json_encode($response);
+
                 break;
             case 'export-product-history':
                 $excel=$this->excel;
