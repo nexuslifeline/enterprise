@@ -27,21 +27,23 @@
 </head>
 <body>
 	<strong>
-	<span style="position: absolute; left: 125px; top: 42px;"><?php echo $journal_info->supplier_name; ?></span>
-	<span style="position: absolute; right: 50px; top: 42px;"><?php echo $journal_info->date_txn; ?></span>
-	<span style="position: absolute; left: 125px; top: 54px;"><?php echo $journal_info->amount; ?></span>
-	<span style="position: absolute; left: 170px; top: 210px;"><?php echo $journal_info->remarks; ?></span>
-	<span style="position: absolute; left: 170px; top: 245px;"><?php echo $journal_info->bank; ?></span>
-	<span style="position: absolute; left: 170px; top: 258px;"><?php echo $journal_info->check_date; ?></span>
-	<span style="position: absolute; left: 170px; top: 270px;"><?php echo $journal_info->check_no; ?></span>
+	<span style="position: absolute; left: 125px; top: 48px;"><?php echo $journal_info->supplier_name; ?></span>
+	<span style="position: absolute; right: 50px; top: 48px;"><?php echo $journal_info->date_txn; ?></span>
+	<span style="position: absolute; left: 125px; top: 60px;text-transform: capitalize;"><?php echo $formatted_amount; ?></span>
+	<span style="position: absolute; left: 170px; top: 21px;"><?php echo $journal_info->remarks; ?></span>
+	<span style="position: absolute; left: 170px; top: 252px;"><?php echo $journal_info->bank; ?></span>
+	<span style="position: absolute; left: 170px; top: 265px;"><?php echo $journal_info->check_date; ?></span>
+	<span style="position: absolute; left: 170px; top: 277px;"><?php echo $journal_info->check_no; ?></span>
 	</strong>
 
-	<table style="position: absolute; left: 30px; top: 75px;" width="100%">
+
+	<table style="position: absolute; left: 30px; top: 83px;" width="100%">
 	<?php foreach($journal_accounts as $account){ ?>
         <tr>
-            <td width="45%" style="padding: 0;"><?php echo $account->account_title; ?></td>
-            <td width="16%" style="padding: 0;" align="right"><?php echo number_format($account->dr_amount,2); ?></td>
-            <td width="17%" style="padding: 0;" align="right"><?php echo number_format($account->cr_amount,2); ?></td>
+            <td width="50%" style="padding: 0;"><?php echo $account->account_title; ?></td>
+            <td width="20%" style="padding: 0;" align="right"><?php echo number_format($account->dr_amount,2); ?></td>
+            <td width="20%" style="padding: 0;" align="right"><?php echo number_format($account->cr_amount,2); ?></td>
+            <td width="10%" style="padding: 0;"></td>
         </tr>
 
     <?php   } 	?>
