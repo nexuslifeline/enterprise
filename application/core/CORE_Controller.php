@@ -71,13 +71,13 @@ class CORE_Controller extends CI_Controller
 
 
     function convertDecimalToWords($num){
-        $num=$this->get_numeric_value($num); //clent it first
 
+        //$num=$this->get_numeric_value($num); //clent it first
         if(substr_count($num,".")>0){ //this a decimal number
             $arr=explode(".",$num);
-            return $this->convertNumberToWord($arr[0])." and ".$this->convertNumberToWord($arr[1])." centavos only ";
+            return $this->convertNumberToWord($this->get_numeric_value($arr[0]))." and ".$this->convertNumberToWord($this->get_numeric_value($arr[1]))." centavos only ";
         }else{
-            return $this->convertNumberToWord($num)." pesos only";
+            return $this->convertNumberToWord($this->get_numeric_value($num))." pesos only";
         }
     }
 
