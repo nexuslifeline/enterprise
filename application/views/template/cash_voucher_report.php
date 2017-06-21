@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Cash Voucher Report</title>
+	<title></title>
 	<style>
 		html {
 			font-family: 'Tahoma',sans-serif;
@@ -30,7 +30,7 @@
 	<span style="position: absolute; left: 125px; top: 48px;"><?php echo $journal_info->supplier_name; ?></span>
 	<span style="position: absolute; right: 50px; top: 48px;"><?php echo $journal_info->date_txn; ?></span>
 	<span style="position: absolute; left: 125px; top: 60px;text-transform: capitalize;"><?php echo $formatted_amount; ?></span>
-	<span style="position: absolute; left: 170px; top: 21px;"><?php echo $journal_info->remarks; ?></span>
+	<span style="position: absolute; left: 170px; top: 211px;"><?php echo $journal_info->remarks; ?></span>
 	<span style="position: absolute; left: 170px; top: 252px;"><?php echo $journal_info->bank; ?></span>
 	<span style="position: absolute; left: 170px; top: 265px;"><?php echo $journal_info->check_date; ?></span>
 	<span style="position: absolute; left: 170px; top: 277px;"><?php echo $journal_info->check_no; ?></span>

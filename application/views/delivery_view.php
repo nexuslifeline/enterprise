@@ -1241,6 +1241,7 @@ $(document).ready(function(){
 
         $('#btn_new').click(function(){
             _txnMode="new";
+            $('#btn_save').removeClass('disabled');
             //$('.toggle-fullscreen').click();
             clearFields($('#frm_deliveries'));
             _cboSuppliers.select2('val',null);
@@ -1422,6 +1423,8 @@ $(document).ready(function(){
             var data=dt.row(_selectRowObj).data();
             _selectedID=data.dr_invoice_id;
 
+            //make sure save button is disabled
+            $('#btn_save').addClass('disabled');
 
             $('textarea[name="remarks"]').html(data.remarks);
             $('#cbo_suppliers').select2('val',data.supplier_id);
@@ -1489,6 +1492,13 @@ $(document).ready(function(){
 
 
                     });
+
+                    //notify if already posted in Sales Journal
+                    if(response.post_status=='posted'){
+                        showNotification({title:"Invalid",stat:"info",msg:response.post_message});
+                    }else{ // if not yet posted, remove disabled class
+                        $('#btn_save').removeClass('disabled');
+                    }
 
                     reInitializeNumeric();
                     reInitializeExpireDate();
@@ -1594,6 +1604,8 @@ $(document).ready(function(){
         });
 
         $('#btn_cancel').click(function(){
+            //make sure save button is disabled
+            $('#btn_save').removeClass('disabled');
             showList(true);
         });
 

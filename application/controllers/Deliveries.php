@@ -92,6 +92,15 @@ class Deliveries extends CORE_Controller
 
             ////****************************************items/products of selected purchase invoice***********************************************
             case 'items': //items on the specific PO, loads when edit button is called
+                //check if this invoice is already posted
+                $m_delivery_invoice=$this->Delivery_invoice_model;
+                $post_info = $m_delivery_invoice->get_list(
+                    array(
+                        'dr_invoice_id'=>$id_filter,
+                        'is_journal_posted'=>1
+                    )
+                );
+
                 $m_items=$this->Delivery_invoice_item_model;
                 $response['data']=$m_items->get_list(
                     array('dr_invoice_id'=>$id_filter),
@@ -110,6 +119,10 @@ class Deliveries extends CORE_Controller
                     'delivery_invoice_items.dr_invoice_item_id DESC'
                 );
 
+                if(count($post_info)>0){
+                    $response['post_status'] = 'posted';
+                    $response['post_message'] = 'Sorry, you cannot edit this transaction because it was already posted in Purchase Journal.';
+                }
 
                 echo json_encode($response);
                 break;

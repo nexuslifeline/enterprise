@@ -75,7 +75,15 @@ class CORE_Controller extends CI_Controller
         //$num=$this->get_numeric_value($num); //clent it first
         if(substr_count($num,".")>0){ //this a decimal number
             $arr=explode(".",$num);
-            return $this->convertNumberToWord($this->get_numeric_value($arr[0]))." and ".$this->convertNumberToWord($this->get_numeric_value($arr[1]))." centavos only ";
+            if($this->get_numeric_value($arr[1])>0){
+                if(substr($arr[1],0,1)=='0'){
+                    return $this->convertNumberToWord($this->get_numeric_value($arr[0]))." and point Zero ".$this->convertNumberToWord($this->get_numeric_value($arr[1]))." centavos only ";
+                }else{
+                    return $this->convertNumberToWord($this->get_numeric_value($arr[0]))." and ".$this->convertNumberToWord($this->get_numeric_value($arr[1]))." centavos only ";
+                }
+            }else{
+                return $this->convertNumberToWord($this->get_numeric_value($arr[0]))." pesos only ";
+            }
         }else{
             return $this->convertNumberToWord($this->get_numeric_value($num))." pesos only";
         }

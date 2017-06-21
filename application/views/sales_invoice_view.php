@@ -1410,6 +1410,7 @@ $(document).ready(function(){
             clearFields($('#div_sales_invoice_fields'));
             $('#span_invoice_no').html('<img src="assets/img/loader/facebook.gif">');
             showList(false);
+            $('#btn_save').removeClass('disabled');
 
             $('#cbo_customers').select2('val', null);
             $('#cbo_departments').select2('val', null);
@@ -1529,7 +1530,8 @@ $(document).ready(function(){
             var data=dt.row(_selectRowObj).data();
             _selectedID=data.sales_invoice_id;
 
-
+            //make sure save button is disabled
+            $('#btn_save').addClass('disabled');
 
             $('#span_invoice_no').html(data.sales_inv_no);
             $('#span_invoice_no').attr('contenteditable',true);
@@ -1594,6 +1596,13 @@ $(document).ready(function(){
 
                     reInitializeNumeric();
                     reComputeTotal();
+
+                    //notify if already posted in Sales Journal
+                    if(response.post_status=='posted'){
+                        showNotification({title:"Invalid",stat:"info",msg:response.post_message});
+                    }else{ // if not yet posted, remove disabled class
+                        $('#btn_save').removeClass('disabled');
+                    }
                 }
             });
 
@@ -1723,6 +1732,7 @@ $(document).ready(function(){
 
         $('#btn_cancel').click(function(){
             //$('#modal_so_list').modal('hide');
+            $('#btn_save').removeClass('disabled');
             showList(true);
             $('cbo_prodType').select2('val',null);
         });
